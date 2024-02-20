@@ -9,25 +9,43 @@ class Node
 
 public:
     double value;
-    double Bias  = 1.0;
+    double bias = 0.0;
     int id = 0;
     int layerId = 0;
-    vector<Node *> nextNodes;
-    Node(double val, double w = 1.0)
+    vector<pair<Node *, double>> nextNodes;//with weights
+    
+    Node(double val, double b = 0.0)
     {
         value = val;
-        Bias = w;
+        bias = b;
     }
 
-    void connect(Node *next)
+    void connect(Node *next, double w=1.0)
     {
-        nextNodes.push_back(next);
+        nextNodes.push_back(make_pair(next, w));
+    }
+    void setWeight(Node *next, double w)
+    {
+        for (int i = 0; i < nextNodes.size(); i++)
+        {
+            if (nextNodes[i].first == next)
+            {
+                nextNodes[i].second = w;
+            }
+        }
+    }
+    void setWeightAll(double w)
+    {
+        for (int i = 0; i < nextNodes.size(); i++)
+        {
+            nextNodes[i].second = w;
+        }
     }
     void disconnect(Node *next)
     {
         for (int i = 0; i < nextNodes.size(); i++)
         {
-            if (nextNodes[i] == next)
+            if (nextNodes[i].first == next)
             {
                 nextNodes.erase(nextNodes.begin() + i);
             }
@@ -52,34 +70,37 @@ public:
     }
     void setBias(double w)
     {
-        Bias = w;
+        bias = w;
     }
     void setId(int id)
     {
         this->id = id;
     }
 
-    vector<Node *> getNextNodes() const
+    vector<pair<Node*, double>> getNextNodes() const
     {
         return nextNodes;
     }
     void passValues()
     {
+        value += bias;
         for (int i = 0; i < nextNodes.size(); i++)
         {
 
-            nextNodes[i]->setValue(
-                value * nextNodes[i]->Bias + nextNodes[i]->getValue());
+            nextNodes[i].first->setValue(
+                (value*nextNodes[i].second) + nextNodes[i].first->getValue()
+                );
         }
+
     }
     void printNextNodes()
     {
-        cout << "Node " << id << " from layer " << layerId << " is connected to nodes ";
+        cout << "[x] Node " << id << " at layer " << layerId << " is connected to nodes:\n"
+        <<"LayerID | nodeID |  weight\n";
         for (int i = 0; i < nextNodes.size(); i++)
         {
-            cout << nextNodes[i]->getId() << " ";
+            cout << "  "  << nextNodes[i].first->layerId << "          " << nextNodes[i].first->getId()<< "         " << nextNodes[i].second << "\n";
         }
-        cout << "from layer " << nextNodes[0]->layerId << "\n";
         en
     }
 };
@@ -102,7 +123,7 @@ public:
         for (int i = 0; i < nodes.size(); i++)
         {
             nodes[i].setValue(val);
-            cout << "Node " << nodes[i].getId() << " set to " << nodes[i].getValue() << "\n";
+            //cout << "Node " << nodes[i].getId() << " set to " << nodes[i].getValue() << "\n";
         }
     }
     void setBiasAll(double w)
@@ -122,6 +143,7 @@ public:
             nodes[i].layerId = layerId;
         }
     }
+    
     void connect(Layer *next)
     {
         for (int i = 0; i < nodes.size(); i++)
@@ -162,6 +184,7 @@ public:
         }
         en
     }
+    
 };
 
 class net
@@ -173,14 +196,22 @@ public:
     {
         for (int i = 0; i < layerSizes.size(); i++)
         {
-            cout << "Layer created";
+            cout << "[+]Layer created";
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);                  // Then set its ID
             cout << " at id " << layers[i].layerId;
             cout << " with size " << layers[i].nodes.size() << "\n";
         }
     }
-
+    void setWeight(Node *n1, Node *n2, double w)
+    {
+        n1->setWeight(n2, w);
+    }
+    void printLayer(int id)
+    {
+        layers[id].printLayer();
+    }
+    
     void printLayers()
     {
         for (int i = 0; i < layers.size(); i++)
@@ -202,6 +233,11 @@ public:
             layers[i].passValues();
         }
     }
+    void printNextNodes(int layerId, int nodeId)
+    {
+        layers[layerId].nodes[nodeId].printNextNodes();
+    }
+    
 };
 
 int main()
@@ -209,13 +245,28 @@ int main()
     cls
 
     net n({2, 2, 2});
+    en
+
+    n.connectLayers();  
+
 
     n.layers[0].setValueAll(1);
-    n.layers[2].setBiasAll(0.5);
-
-    n.connectLayers();
+    n.layers[0].nodes[0].setWeightAll(0.5);
+    
+    
+    
     n.passValues();
-
+    
+    //analytics
     n.printLayers();
+    n.printNextNodes(0, 0);
+    n.printNextNodes(0, 1);
+    n.printNextNodes(1, 0);
+    n.printNextNodes(1, 1);
+    n.printNextNodes(2, 0);
+    n.printNextNodes(2, 1);
+    en
+    
+
     return 0;
 }
