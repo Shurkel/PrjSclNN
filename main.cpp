@@ -9,10 +9,15 @@ class Node
 
 public:
     double value;
+    double Bias  = 1.0;
     int id = 0;
     int layerId = 0;
     vector<Node *> nextNodes;
-    Node(double val) : value(val) {}
+    Node(double val, double w = 1.0)
+    {
+        value = val;
+        Bias = w;
+    }
 
     void connect(Node *next)
     {
@@ -45,6 +50,10 @@ public:
     {
         value = val;
     }
+    void setBias(double w)
+    {
+        Bias = w;
+    }
     void setId(int id)
     {
         this->id = id;
@@ -59,7 +68,8 @@ public:
         for (int i = 0; i < nextNodes.size(); i++)
         {
 
-            nextNodes[i]->setValue(value + nextNodes[i]->getValue());
+            nextNodes[i]->setValue(
+                value * nextNodes[i]->Bias + nextNodes[i]->getValue());
         }
     }
     void printNextNodes()
@@ -92,6 +102,14 @@ public:
         for (int i = 0; i < nodes.size(); i++)
         {
             nodes[i].setValue(val);
+            cout << "Node " << nodes[i].getId() << " set to " << nodes[i].getValue() << "\n";
+        }
+    }
+    void setBiasAll(double w)
+    {
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            nodes[i].setBias(w);
         }
     }
     void setIdAll(int id)
@@ -103,7 +121,6 @@ public:
             nodes[i].setId(i);
             nodes[i].layerId = layerId;
         }
-
     }
     void connect(Layer *next)
     {
@@ -145,14 +162,13 @@ public:
         }
         en
     }
-    
 };
 
 class net
 {
 public:
     vector<Layer> layers;
-    
+
     net(vector<int> layerSizes)
     {
         for (int i = 0; i < layerSizes.size(); i++)
@@ -161,13 +177,9 @@ public:
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);                  // Then set its ID
             cout << " at id " << layers[i].layerId;
-            cout << " size of layer " << i << " is " << layers[i].nodes.size() << "\n";
+            cout << " with size " << layers[i].nodes.size() << "\n";
         }
     }
-    
-
-        
-    
 
     void printLayers()
     {
@@ -195,26 +207,15 @@ public:
 int main()
 {
     cls
-    //create a network of 3 layers of 2 nodes
-    /* net n1({2, 2, 2});
-    n1.connectLayers();
-    n1.layers[0].setValueAll(1);
-    n1.passValues();
-    en
-    n1.printLayers(); */
-    
-    Layer l1(2);
-    l1.setIdAll(1);
-    l1.setValueAll(1);
-    Layer l2(2);
-    l2.setIdAll(2);
-    l1.connect(&l2);
-   
-    l1.passValues();
-    l1.printLayer();
-    l2.printLayer();
-    l1.nodes[0].printNextNodes();en
-    l1.disconnect(&l2);
-    l1.nodes[0].printNextNodes();
+
+    net n({2, 2, 2});
+
+    n.layers[0].setValueAll(1);
+    n.layers[2].setBiasAll(0.5);
+
+    n.connectLayers();
+    n.passValues();
+
+    n.printLayers();
     return 0;
 }
