@@ -250,13 +250,13 @@ public:
     void printLayer()
     {
         // make it fancy with "" and id and stuff
-        cout << "--------------\n";
-        cout << "|LayerID " << layerId << "   |\n";
-        cout << "--------------\n";
-        cout << "Node Id | Value\n";
+        l << "--------------\n";
+        l << "|LayerID " << layerId << "   |\n";
+        l << "--------------\n";
+        l << "Node Id | Value\n";
         for (int i = 0; i < nodes.size(); i++)
         {
-            cout << "  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << "\n";
+            l << "  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << "\n";
         }
         en
     }
@@ -267,11 +267,13 @@ class net
 {
 public:
     vector<Layer> layers;
-
+    //$TD logging function
+    
     net(vector<int> layerSizes)
     {
         for (int i = 0; i < layerSizes.size(); i++)
         {
+            //$TD logging implement
             cout << "[+]Layer created";
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);                  // Then set its ID
