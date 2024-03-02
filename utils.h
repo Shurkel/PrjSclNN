@@ -13,25 +13,74 @@
 // $O - OPTIMIZATION
 // $OF - OPTIONAL FEATURE
 
+/*
+    relu - 0
+    sigmoid - 1
+*/
+
 
 //INCLUDES
 #include <iostream>
 #include <vector>
 #include <windows.h>
 #include <fstream>
+#include <random>
+#include <chrono>
 using namespace std;
 
-
+//logs
+ofstream l("logs.out");
 
 //DEFINES
 #define en cout << '\n';
+#define len l << '\n';
 #define cls system("cls");
 
 
-ofstream l("logs.out");
+
 
 
 //CLASSES
+
+class util
+{
+public:
+    double relu(double x)
+    {
+        if (x > 0)
+        {
+            return x;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    double sigmoid(double x)
+    {
+        return 1 / (1 + exp(-x));
+    }
+}u;
+
+class timer {
+public:
+    chrono::time_point<chrono::high_resolution_clock> startTime, endTime;
+    chrono::duration<float> duration;
+
+    void start() {
+        startTime = chrono::high_resolution_clock::now();
+    }
+
+    void stop() {
+        endTime = chrono::high_resolution_clock::now();
+        duration = endTime - startTime;
+
+        //time in milliseconds
+        l << "Time: " << duration.count() * 1000 << "ms\n";
+    }
+}t;
+
+//node
 class Node
 {
 
@@ -41,6 +90,8 @@ public:
     int id = 0;
     int layerId = 0;
     bool log = false;
+    bool yesActivate = true;
+    int activationFunction = 0;
     vector<pair<Node *, double>> nextNodes;//with weights
 
 
@@ -52,11 +103,26 @@ public:
 
         value = val;
         bias = b;
+
     }
 
     //////////////////////////
     //////NODE FUNCTIONS//////
     //////////////////////////
+    void activate(int function)
+    {
+        //relu
+        if (function == 0)
+        {
+            value = u.relu(value);
+        }
+        //sigmoid
+        else if (function == 1)
+        {
+            value = u.sigmoid(value);
+        }
+        
+    }
     void logging()
     {
         if(log)
@@ -135,6 +201,7 @@ public:
         if(log)
             l << "[+] Node " << id << " value set to " << val << "\n";
     }
+    
     void setBias(double w)
     {
         bias = w;
@@ -156,6 +223,11 @@ public:
     void passValues()
     {
         value += bias;
+        if(yesActivate)
+        {
+            activate(activationFunction);
+        }
+        
         for (int i = 0; i < nextNodes.size(); i++)
         {
 
@@ -186,19 +258,59 @@ class Layer
 {
 public:
     vector<Node> nodes;
+    bool yesActivate = true;
     int layerId = 0;
+
     Layer(int n)
     {
+        
         for (int i = 0; i < n; i++)
         {
             nodes.push_back(Node(0));
+            nodes[i].yesActivate = yesActivate;
+        }
+    }
+    void noActivate()
+    {
+        if(yesActivate)
+        {
+            yesActivate = false;
+            for (int i = 0; i < nodes.size(); i++)
+            {
+                nodes[i].yesActivate = yesActivate;
+            }
+            l << "[-] Layer " << layerId << " deactivated\n";
+        }
+        else
+        {
+            yesActivate = true;
+            for (int i = 0; i < nodes.size(); i++)
+            {
+                nodes[i].yesActivate = yesActivate;
+            }
+            l << "[+] Layer " << layerId << " activated\n";
+        }
+        
+    }
+    void setActivateAll(int function)
+    {
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            nodes[i].activate(function);
+        }
+    }
+    void setActivate(int function)
+    {
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            nodes[i].activationFunction = function;
         }
     }
     void setValueAll(double val)
     {
         for (int i = 0; i < nodes.size(); i++)
         {
-            nodes[i].setValue(val);
+            nodes[i].setValue((double)val);
             //cout << "Node " << nodes[i].getId() << " set to " << nodes[i].getValue() << "\n";
         }
     }
@@ -245,6 +357,7 @@ public:
         for (int i = 0; i < nodes.size(); i++)
         {
             nodes[i].passValues();
+
         }
     }
     void printLayer()
@@ -258,45 +371,102 @@ public:
         {
             l << "  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << "\n";
         }
-        en
+        len 
     }
     
 };
 
+//net
 class net
 {
 public:
     vector<Layer> layers;
-    //$TD logging function
+   
     
     net(vector<int> layerSizes)
     {
         for (int i = 0; i < layerSizes.size(); i++)
         {
-            //$TD logging implement
-            cout << "[+]Layer created";
+            
+            l << "[+]Layer created";
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);                  // Then set its ID
-            cout << " at id " << layers[i].layerId;
-            cout << " with size " << layers[i].nodes.size() << "\n";
+            l << " at id " << layers[i].layerId;
+            l << " with size " << layers[i].nodes.size() << "\n";
+            
+        }
+        len
+    }
+
+    //layer functions
+
+    void setValueAll(int layerId, double val)
+    {
+        layers[layerId].setValueAll(val);
+    }   
+
+    void setBiasAll(int layerId, double w)
+    {
+        layers[layerId].setBiasAll(w);
+    }
+
+    void setIdAll(int layerId, int id)
+    {
+        layers[layerId].setIdAll(id);
+    }
+
+    void setActivateAll(int function)
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            layers[i].setActivateAll(function);
         }
     }
-    void setWeight(Node *n1, Node *n2, double w)
+
+    void noActivate(int layerId)
     {
-        n1->setWeight(n2, w);
+        layers[layerId].noActivate();
     }
+
+    void noActivateAll()
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            layers[i].noActivate();
+        }
+    }
+
+    void setActivate(int layerId, int function)
+    {
+        layers[layerId].setActivate(function);
+    }
+
     void printLayer(int id)
     {
         layers[id].printLayer();
     }
-    
-    void printLayers()
+
+    void printNet()
     {
+        len
         for (int i = 0; i < layers.size(); i++)
         {
             layers[i].printLayer();
         }
     }
+
+    //node functions
+    void setWeight(Node *n1, Node *n2, double w)
+    {
+        n1->setWeight(n2, w);
+    }
+
+    void printNextNodes(int layerId, int nodeId)
+    {
+        layers[layerId].nodes[nodeId].printNextNodes();
+    }
+    
+    //net functions
     void connectLayers()
     {
         for (int i = 0; i < layers.size() - 1; i++)
@@ -307,14 +477,9 @@ public:
     void passValues()
     {
         for (int i = 0; i < layers.size(); i++)
-        {
-            layers[i].passValues();
-        }
+                layers[i].passValues();
     }
-    void printNextNodes(int layerId, int nodeId)
-    {
-        layers[layerId].nodes[nodeId].printNextNodes();
-    }
+    
     
 };
 

@@ -1,0 +1,10 @@
+[+]Layer created at id 0 with size 10000
+[+]Layer created at id 1 with size 1
+
+--------------
+|LayerID 1   |
+--------------
+Node Id | Value
+  0 ------> 10000
+
+Time: 3.001ms
