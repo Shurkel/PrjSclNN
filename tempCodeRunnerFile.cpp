@@ -1,1 +1,1 @@
-setActivateAll
+cin.get();

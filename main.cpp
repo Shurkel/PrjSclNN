@@ -26,17 +26,19 @@ int main()
     t.start();
 
 
-    net n({10000, 1});
+    net n({1});
     n.connectLayers();
     n.setValueAll(0, 1);
     n.passValues();
-    n.printLayer(1);
+    //n.printLayer(1);
+    
 
 
 
-
-
+    
     t.stop();
+    l.flush();
+    abort();
     return 0;
     
     
