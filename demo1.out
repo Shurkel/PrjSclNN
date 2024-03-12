@@ -1,0 +1,26 @@
+[+]Layer created at id 0 with size 1
+[+]Layer created at id 1 with size 3
+
+[+] Logging enabled for node with id 0, layer: 1
+[+] Logging enabled for node with id 1, layer: 1
+[+] Logging enabled for node with id 2, layer: 1
+[+] Node 0 value set to 1
+[+] Node 1 value set to 1
+[+] Node 2 value set to 1
+[+]Costs: 0 1 1 
+
+--------------
+|LayerID 0   |
+--------------
+Node Id | Value
+  0 ------> 1
+
+--------------
+|LayerID 1   |
+--------------
+Node Id | Value
+  0 ------> 1
+  1 ------> 1
+  2 ------> 1
+
+Time: 0ms

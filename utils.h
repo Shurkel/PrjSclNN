@@ -26,10 +26,28 @@
 #include <fstream>
 #include <random>
 #include <chrono>
+#include <string>
+#include <cstdlib>
+
+
+
 using namespace std;
 
-//logs
-ofstream l("logs.out");
+
+
+
+std::ofstream l("logs/logs.out");
+void setLogFile(const std::string& filename) {
+    if (l.is_open()) {
+        l.close();
+    }
+    std::string fullPath = "logs/" + filename;
+    l.open(fullPath, std::ios::app);
+    if (!l) {
+        std::cerr << "Failed to open log file: " << fullPath << '\n';
+        exit(1);
+    }
+}
 
 //DEFINES
 #define en cout << '\n';
@@ -68,6 +86,14 @@ public:
         }
         len
     }
+    
+
+    void deleteLogs() {
+    
+    system("del /Q logs\\*");
+}
+    
+    
 }u;
 
 class timer {
@@ -417,7 +443,7 @@ public:
     }
 
     //layer functions
-    void enableGlobalLogging()
+    void loggingGlobal()
     {
         for (int i = 0; i < layers.size(); i++)
         {
