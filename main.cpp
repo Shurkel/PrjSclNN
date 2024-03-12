@@ -25,20 +25,22 @@ int main()
     cls
     t.start();
 
-
-    net n({1});
+    
+    net n({1, 5});
+    n.loggingLayer(1);
     n.connectLayers();
     n.setValueAll(0, 1);
     n.passValues();
-    //n.printLayer(1);
+    n.setExpected({1, 0, 1, 0, 0});
+    n.getCosts();
+    n.logCosts();
+    n.printNet();
     
-
-
-
     
     t.stop();
+    
     l.flush();
-    abort();
+    
     return 0;
     
     

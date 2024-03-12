@@ -35,7 +35,7 @@ ofstream l("logs.out");
 #define en cout << '\n';
 #define len l << '\n';
 #define cls system("cls");
-
+#define test cout << "test\n";
 
 
 
@@ -59,6 +59,14 @@ public:
     double sigmoid(double x)
     {
         return 1 / (1 + exp(-x));
+    }
+    void logVector(vector<double> v)
+    {
+        for (int i = 0; i < v.size(); i++)
+        {
+            l << v[i] << " ";
+        }
+        len
     }
 }u;
 
@@ -133,7 +141,7 @@ public:
         }
         else
         {
-            l << "[+] Logging enabled for node with id " << id << "\n";
+            l << "[+] Logging enabled for node with id " << id << ", layer: " << layerId << "\n";
             log = true;
         }            
     }
@@ -270,6 +278,15 @@ public:
             nodes[i].yesActivate = yesActivate;
         }
     }
+
+    void setValueFromVector(vector<double> values)
+    {
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            nodes[i].setValue(values[i]);
+        }
+    }
+
     void noActivate()
     {
         if(yesActivate)
@@ -381,7 +398,8 @@ class net
 {
 public:
     vector<Layer> layers;
-   
+    vector<double> expected;
+    vector<double> costs;
     
     net(vector<int> layerSizes)
     {
@@ -399,7 +417,44 @@ public:
     }
 
     //layer functions
-
+    void enableGlobalLogging()
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            for (int j = 0; j < layers[i].nodes.size(); j++)
+            {
+                layers[i].nodes[j].logging();
+            }
+        }
+    }
+    void loggingLayer(int layerId)
+    {
+        for (int i = 0; i < layers[layerId].nodes.size(); i++)
+        {
+            layers[layerId].nodes[i].logging();
+        }
+    }
+    void setExpected(vector<double> expectedValues)
+    {
+        expected = expectedValues;
+       
+    }
+    void getCosts()
+    {
+        for (int i = 0; i < layers.back().nodes.size(); i++)
+        {
+            costs.push_back(layers.back().nodes[i].value - expected[i]);
+        }
+    }
+    void logCosts()
+    {
+        l << "[+]Costs: ";
+        for (int i = 0; i < costs.size(); i++)
+        {
+            l << costs[i] << " ";
+        }
+        len
+    }
     void setValueAll(int layerId, double val)
     {
         layers[layerId].setValueAll(val);
@@ -487,4 +542,5 @@ public:
 
 
 };
+
 
