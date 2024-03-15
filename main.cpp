@@ -3,7 +3,7 @@
 
 int main()
 {
-    u.deleteLogs();
-    runDemo1("logs3.out");
-
+    
+    runDemo1("logs4.out");
+    
 }

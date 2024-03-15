@@ -426,8 +426,13 @@ public:
     vector<Layer> layers;
     vector<double> expected;
     vector<double> costs;
+    vector<int> layerSizes;
     
-    net(vector<int> layerSizes)
+    net(vector<int> layerSizes = {0})
+    {
+        layerSizes = layerSizes;
+    }
+    void initNet(vector<int> layerSizes)
     {
         for (int i = 0; i < layerSizes.size(); i++)
         {
@@ -441,8 +446,17 @@ public:
         }
         len
     }
-
     //layer functions
+    void setWeightsAll(double w)
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            for (int j = 0; j < layers[i].nodes.size(); j++)
+            {
+                layers[i].nodes[j].setWeightAll(w);
+            }
+        }
+    }
     void loggingGlobal()
     {
         for (int i = 0; i < layers.size(); i++)
