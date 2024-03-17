@@ -6,20 +6,23 @@ public:
     vector<Layer> layers;
     vector<double> expected;
     vector<double> costs;
-    
+
     net(vector<int> layerSizes)
     {
+        l << "[+]Net created\n";
+        l << "[+]Creating layers\n";
         for (int i = 0; i < layerSizes.size(); i++)
         {
             
-            l << "[+]Layer created";
+            l  << "|    [+]Layer created";
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);                  // Then set its ID
             l << " at id " << layers[i].layerId;
             l << " with size " << layers[i].nodes.size() << "\n";
             
         }
-        len
+        l << "-----";
+        len len
     }
 
     //layer functions
@@ -47,14 +50,27 @@ public:
     }
     void getCosts()
     {
-        for (int i = 0; i < layers.back().nodes.size(); i++)
+        
+       for (int i = 0; i < layers.back().nodes.size(); i++)
         {
             costs.push_back(layers.back().nodes[i].value - expected[i]);
+        }
+        if (costs.empty()) {
+            cerr << (char)218<< "[x] Error: Costs vector is empty.\n" << (char)192 << "Please use setExpected() before calling getCosts().\n";
+            
+            
+            if (l.is_open()) 
+            {
+                l << "[x] Error: Costs vector is empty.\n" << ">>Please use setExpected() before calling getCosts()\n";
+                l.flush();
+            }
+                
+        
         }
     }
     void logCosts()
     {
-        l << "[+]Costs: ";
+        l << "\n\n[+]Costs: ";
         for (int i = 0; i < costs.size(); i++)
         {
             l << costs[i] << " ";

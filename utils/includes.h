@@ -10,13 +10,13 @@ using namespace std;
 
 
 
-std::ofstream l;
-void setLogFile(const std::string& filename) {
-    
+
+ofstream l("../logs/logs.out");
+void setLogFile(const string& filename) {
     if (l.is_open()) {
         l.close();
     }
-    std::string fullPath = "../logs/" + filename;
+    string fullPath = "./../logs/" + filename;
     l.open(fullPath, std::ios::trunc);
     if (!l) {
         std::cerr << "Failed to open log file: " << fullPath << '\n';
@@ -24,8 +24,10 @@ void setLogFile(const std::string& filename) {
     }
 }
 
+
 //DEFINES
 #define en cout << '\n';
 #define len l << '\n';
 #define cls system("cls");
 #define test cout << "test\n";
+#define ltest l << "test\n";l.flush();

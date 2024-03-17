@@ -22,12 +22,12 @@ void runDemo1(string outputfile)
     relu - 0
     sigmoid - 1
     */
-   cls
-    setLogFile(outputfile);
-     
+   
+    
+    
+    
     t.start();
 
-    
     
     net n({1, 1});
     n.loggingLayer(1);
@@ -35,9 +35,13 @@ void runDemo1(string outputfile)
 
     n.connectLayers();
     n.setValue(0,0,1);
-    n.setExpected({1, 0});
+
+    n.passValues();
+    
+    n.setExpected({1});
     n.getCosts();
     n.logCosts();
+
     n.printNet();
     
     
