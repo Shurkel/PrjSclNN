@@ -1,48 +1,28 @@
 #include <iostream>
-#include <vector>
-
-
+#include <cmath>
 using namespace std;
 
-int adjMatrix[10][10];
-double weightMatrix[10][10];
-
-
-class node
+double function(double x)
 {
-public:
-    int id;
-    double val;
-    double bias;
-    void connect(int nextID, double w=1.0)
-    {
-        adjMatrix[id][nextID] = 1;
-        weightMatrix[id][nextID] = w;
-    }
-};
+    return 0.2 * pow(x, 4) + 0.1 + pow(x, 3) - pow(x, 2) + 2;
+}
+double inputValue = 0.5;
 
+void Learn(double learnRate)
+{
+    double h = 0.0001;
+    double deltaOutput = function(inputValue+ h) - function(inputValue);
+    double slope = deltaOutput / h;
 
+    inputValue -= slope * learnRate;
+}
 
 int main()
 {
-    node n1;
-    n1.id = 1;
-    n1.val = 0.5;
-    n1.bias = 0.0;
-    node n2;
-    n2.id = 2;
-    n2.val = 0.5;
-    n2.bias = 0.0;
-    n1.connect(2, 0.5);
-    //print matrix;
-    for(int i=0; i<10; i++)
+    for (int i = 0; i < 100; i++)
     {
-        for(int j=0; j<10; j++)
-        {
-            cout << adjMatrix[i][j] << " ";
-        }
-        cout << endl;
+        Learn(0.07);
+        cout << inputValue << endl;
     }
-
     return 0;
 }

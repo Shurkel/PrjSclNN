@@ -51,7 +51,7 @@ public:
     {
         for (int i = 0; i < nodes.size(); i++)
         {
-            nodes[i].activate(function);
+            nodes[i].setActivate(function);
         }
     }
     void setActivate(int function)
@@ -121,15 +121,18 @@ public:
     }
     void printLayer()
     {
-        // make it fancy with "" and id and stuff
-        l << "--------------\n";
-        l << "|LayerID " << layerId << "   |\n";
-        l << "--------------\n";
-        l << "Node Id | Value\n";
+        
+        len len
+        l << "---------------------------\n";
+        l << "| LayerID " << layerId << "                |\n";
+        l << "---------------------------\n";
+        l << "| Node Id | Value | Bias   |\n";
+        l << "---------------------------\n";
         for (int i = 0; i < nodes.size(); i++)
         {
-            l << "  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << "\n";
+            l << "|  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << " ------> " << nodes[i].bias << " |" << "\n";
         }
+        l << "---------------------------\n";
         len 
     }
     

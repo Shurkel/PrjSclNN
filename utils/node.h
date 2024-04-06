@@ -7,6 +7,7 @@ class Node
 public:
     double value;
     double bias = 0.0;
+    double delta;
     int id = 0;
     int layerId = 0;
     bool log = false;
@@ -28,8 +29,16 @@ public:
 
     //////////////////////////
     
-    //////NODE FUNCTIONS//////
-    //////////////////////////
+    // * *NODE FUNCTIONS
+    
+    void setActivate(int function)
+    {
+        activationFunction = function;
+        if(log)
+        {
+            l << "[+] Activation function set to " << function << " for node " << id << "\n";
+        }
+    }
     void activate(int function)
     {
         //relu
@@ -146,9 +155,11 @@ public:
         value += bias;
         if(yesActivate)
         {
+            //cout << "Activating node " << id << " with value " << value << "\n";
             activate(activationFunction);
         }
-        
+            
+            
         for (int i = 0; i < nextNodes.size(); i++)
         {
 
@@ -171,5 +182,12 @@ public:
             cout << "  "  << nextNodes[i].first->layerId << "          " << nextNodes[i].first->getId()<< "         " << nextNodes[i].second << "\n";
         }
         en
+    }
+    void randomiseWeights()
+    {
+        for (int i = 0; i < nextNodes.size(); i++)
+        {
+            nextNodes[i].second = u.randomDouble(-1, 1);
+        }
     }
 };

@@ -27,9 +27,13 @@ public:
     }
     void logTime()
     {
-        //curent time and date
+        // curent time and date
         l << "Last Build: " << __TIME__ << ", " << __DATE__ << "\n";
     }
-    
-    
-}u;
+
+    double randomDouble(double fMin, double fMax)
+    {
+        double f = (double)rand() / RAND_MAX;
+        return fMin + f * (fMax - fMin);
+    }
+} u;
