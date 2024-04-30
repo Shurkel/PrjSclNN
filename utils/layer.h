@@ -110,19 +110,23 @@ public:
     }
     void logLayer()
     {
-        
-        len len
-        l << "---------------------------\n";
-        l << "| LayerID " << layerId << "                |\n";
-        l << "---------------------------\n";
-        l << "| Node Id | Value | Bias   |\n";
-        l << "---------------------------\n";
+        len
+        TextTable t('-', '|', '+');
+        cout << "+-------+\n";
+        cout << "|Layer " << layerId << "|\n";
+        t.add("Node Id");
+        t.add("Value");
+        t.add("Bias");
+        t.endOfRow();
         for (int i = 0; i < nodes.size(); i++)
         {
-            l << "|  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << " ------> " << nodes[i].bias << " |" << "\n";
+            t.add(to_string(nodes[i].getId()));
+            t.add(to_string(nodes[i].getValue()));
+            t.add(to_string(nodes[i].bias));
+            t.endOfRow();
         }
-        l << "---------------------------\n";
-        len 
+        l << t;
+        
     }
     void printLayer()
     {

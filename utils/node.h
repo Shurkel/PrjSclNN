@@ -13,7 +13,7 @@ public:
     bool log = false;
     bool yesActivate = true;
     int activationFunction = 0;
-    double error = 0.0;
+    
 
     vector<pair<Node *, double>> nextNodes;//with weights
     double delta = 0.0;
