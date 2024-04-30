@@ -17,6 +17,11 @@ public:
     {
         return 1 / (1 + exp(-x));
     }
+    double softmax(double x)
+    {
+        //f(x) = log(1 + e^x)
+        return log(1 + exp(x));
+    }
     void logVector(vector<double> v)
     {
         for (int i = 0; i < v.size(); i++)
@@ -30,7 +35,6 @@ public:
         // curent time and date
         l << "Last Build: " << __TIME__ << ", " << __DATE__ << "\n";
     }
-
     double randomDouble(double fMin, double fMax)
     {
         double f = (double)rand() / RAND_MAX;

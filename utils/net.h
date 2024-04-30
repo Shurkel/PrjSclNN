@@ -6,25 +6,51 @@ public:
     vector<Layer> layers;
     vector<double> expected;
     vector<double> costs;
+    bool log = true;
+    double cost = 0.0;
+    //sum of squared residuals
+    double SSR = 0.0;
+
+
 
     net(vector<int> layerSizes)
     {
-        l << "[+]Net created\n";
-        l << "[+]Creating layers\n";
+        if(log)
+        {
+            l << "[+]Net created\n";
+            l << "[+]Creating layers\n";
+        }
+        
         for (int i = 0; i < layerSizes.size(); i++)
         {
 
-            l << "|    [+]Layer created";
+            
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
-            layers[i].setIdAll(i);                  // Then set its ID
-            l << " at id " << layers[i].layerId;
-            l << " with size " << layers[i].nodes.size() << "\n";
+            layers[i].setIdAll(i);     
+            if(log)
+            {
+                l << "|    [+]Layer created";             // Then set its ID
+                l << " at id " << layers[i].layerId;
+                l << " with size " << layers[i].nodes.size() << "\n";
+            }
+            
+            
         }
-        l << "-----";
-        len len
+        
+        clearCosts();
     }
 
     // layer functions
+    void logNet()
+    {
+        if(log)
+            log = false;
+        else
+            log = true;
+    }
+    
+
+
     void loggingGlobal()
     {
         for (int i = 0; i < layers.size(); i++)
@@ -35,6 +61,7 @@ public:
             }
         }
     }
+    
     void loggingLayer(int layerId)
     {
         for (int i = 0; i < layers[layerId].nodes.size(); i++)
@@ -42,30 +69,59 @@ public:
             layers[layerId].nodes[i].logging();
         }
     }
+    
     void setExpected(vector<double> expectedValues)
     {
         expected = expectedValues;
     }
-    void getCosts()
+    
+    void setExpectedFromVector(vector<double> expectedValues)
     {
-
         for (int i = 0; i < layers.back().nodes.size(); i++)
         {
-            costs.push_back(layers.back().nodes[i].value - expected[i]);
+            expected.push_back(expectedValues[i]);
         }
-        if (costs.empty())
+    }
+    
+    void getCosts()
+    {
+        
+        if (expected.empty())
         {
             cerr << (char)218 << "[x] Error: Costs vector is empty.\n"
-                 << (char)192 << "Please use setExpected() before calling getCosts().\n";
+            << (char)192 << "Please use setExpected() before calling getCosts().\n";
 
             if (l.is_open())
             {
                 l << "[x] Error: Costs vector is empty.\n"
-                  << ">>Please use setExpected() before calling getCosts()\n";
+                << ">>Please use setExpected() before calling getCosts()\n";
                 l.flush();
             }
+            return;
+        }
+        for (int i = 0; i < layers.back().nodes.size(); i++)
+        {
+            costs.push_back(expected[i] - layers.back().nodes[i].value);
+            layers.back().nodes[i].error = costs[i];
+        }
+        
+    }
+    
+    void getSSR()
+    {
+        for (int i = 0; i < costs.size(); i++)
+        {
+            SSR += pow(costs[i], 2);
+            //cout << "SSR += pow(costs[i], 2) "<< "\n";
+            //cout << "costs[i]: " << costs[i] << "\n";
         }
     }
+
+    void clearCosts()
+    {
+        costs.clear();
+    }
+    
     void logCosts()
     {
         l << "\n\n[+]Costs: ";
@@ -75,18 +131,58 @@ public:
         }
         len
     }
-    void setValueAll(int layerId, double val)
+    
+    void printCosts()
     {
-        layers[layerId].setValueAll(val);
+        cout << "\n[+]Costs: ";
+        for (int i = 0; i < costs.size(); i++)
+        {
+            cout << costs[i] << " ";
+        }
+        cout << "\n";
+        cout.flush();
     }
+    
+    void printExpected()
+    {
+        cout << "\n[+]Expected: ";
+        for (int i = 0; i < expected.size(); i++)
+        {
+            cout << expected[i] << " ";
+        }
+        cout << "\n";
+        cout.flush();
+    }
+
+    void printActualOutput()
+    {
+        cout << "\n[+]Actual output: ";
+        for (int i = 0; i < layers.back().nodes.size(); i++)
+        {
+            cout << layers.back().nodes[i].value << " ";
+        }
+        cout << "\n";
+        cout.flush();
+    }
+    
+    void setValueAll( double val)
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            layers[i].setValueAll(val);
+        }
+    }
+    
     void setValue(int layerId, int nodeId, double val)
     {
         layers[layerId].setValue(nodeId, val);
     }
+    
     void setValueFromVector(vector<double> values)
     {
         layers[0].setValueFromVector(values);
     }
+    
     void setBiasAll(int layerId, double w)
     {
         layers[layerId].setBiasAll(w);
@@ -105,16 +201,16 @@ public:
         }
     }
 
-    void noActivate(int layerId)
+    void noActivate(int nodeId, int layerId)
     {
-        layers[layerId].noActivate();
+        layers[layerId].noActivate(nodeId);
     }
 
     void noActivateAll()
     {
         for (int i = 0; i < layers.size(); i++)
         {
-            layers[i].noActivate();
+            layers[i].noActivateAll();
         }
     }
 
@@ -130,18 +226,44 @@ public:
 
     void printNet()
     {
-        len for (int i = 0; i < layers.size(); i++)
+        cout << (char)218 << "Layer count: " << layers.size() << '\n';
+        cout << (char)195 << "SSR: " << SSR << '\n';
+        cout << (char)195 << "Layer | Size\n";
+
+        cout << char(195);
+        cout << "  " << layers[0].layerId << "   |    " << layers[0].nodes.size() << "\n";
+        
+        for(int i = 1; i < layers.size()-1; i++)
+        {
+            cout << char(195) << "  ";
+            cout << layers[i].layerId << "   |    " << layers[i].nodes.size() << "\n";
+        }
+
+        cout << char(192);
+        cout << "  " << layers.back().layerId << "   |    " << layers.back().nodes.size();
+        cout.flush();
+        
+    }
+    
+    void printLayers()
+    {
+        for (int i = 0; i < layers.size(); i++)
         {
             layers[i].printLayer();
         }
     }
 
     // node functions
-    void setWeight(Node *n1, Node *n2, double w)
+    void setWeight(int nodeID, int layerID, int nextNodeID, int nextLayerID, double w)
     {
-        n1->setWeight(n2, w);
+        layers[layerID].nodes[nodeID].setWeight(nextNodeID, nextLayerID, w);
     }
 
+    void setBias(int nodeID, int layerID, double w)
+    {
+        layers[layerID].nodes[nodeID].setBias(w);
+    }   
+    
     void printNextNodes(int layerId, int nodeId)
     {
         layers[layerId].nodes[nodeId].printNextNodes();
@@ -161,52 +283,12 @@ public:
             layers[i].passValues();
     }
 
-    void backpropagation(double learningRate) {
-        // ! needs work
-        // Step 1: Calculate output layer deltas
-        for (int i = 0; i < layers.back().nodes.size(); i++) {
-            double output = layers.back().nodes[i].getValue();
-            double expectedOutput = expected[i];
-            double delta = output * (1 - output) * (expectedOutput - output);
-            layers.back().nodes[i].delta = delta;
-        }
+    void updateGradient()
+    {
+        passValues();
 
-        // Step 2: Calculate hidden layer deltas
-        for (int i = layers.size() - 2; i > 0; i--) {
-            for (int j = 0; j < layers[i].nodes.size(); j++) {
-                double output = layers[i].nodes[j].getValue();
-                double sum = 0.0;
-                for (int k = 0; k < layers[i + 1].nodes.size(); k++) {
-                    double weight = 0.0;
-                    for (const auto& pair : layers[i + 1].nodes[k].nextNodes) {
-                        if (pair.first == &layers[i].nodes[j]) {
-                            weight = pair.second;
-                            break;
-                        }
-                    }
-                    sum += layers[i + 1].nodes[k].delta * weight;
-                }
-                double delta = output * (1 - output) * sum;
-                layers[i].nodes[j].delta = delta;
-            }
-        }
-
-        // Step 3: Update weights
-        for (int i = 0; i < layers.size() - 1; i++) {
-            for (int j = 0; j < layers[i].nodes.size(); j++) {
-                for (int k = 0; k < layers[i + 1].nodes.size(); k++) {
-                    double output = layers[i].nodes[j].getValue();
-                    double delta = layers[i + 1].nodes[k].delta;
-                    double weightDelta = learningRate * output * delta;
-                    for (auto& pair : layers[i + 1].nodes[k].nextNodes) {
-                        if (pair.first == &layers[i].nodes[j]) {
-                            pair.second += weightDelta;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        //update output layer gradient
+        
     }
 
     void setWeightAll(double w)
@@ -229,5 +311,9 @@ public:
                 layers[i].nodes[j].randomiseWeights();
             }
         }
+    }
+    void printNodeDetails(int nodeId, int layerId)
+    {
+        layers[layerId].nodes[nodeId].printDetails();
     }
 };

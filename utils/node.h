@@ -7,14 +7,14 @@ class Node
 public:
     double value;
     double bias = 0.0;
-    double delta;
     int id = 0;
     int layerId = 0;
     bool log = false;
     bool yesActivate = true;
     int activationFunction = 0;
     vector<pair<Node *, double>> nextNodes;//with weights
-
+    double delta = 0.0;
+    double error = 0.0;
 
     
 
@@ -41,17 +41,24 @@ public:
     }
     void activate(int function)
     {
+        // * * add more functions here
         //relu
         if (function == 0)
-        {
             value = u.relu(value);
-        }
         //sigmoid
         else if (function == 1)
-        {
             value = u.sigmoid(value);
+        //softmax
+        else if (function == 2)
+            value = u.softmax(value);
+    }
+    void noActivate()
+    {
+        yesActivate = false;
+        if(log)
+        {
+            l << "[-] Node " << id << " deactivated\n";
         }
-        
     }
     void logging()
     {
@@ -76,17 +83,12 @@ public:
             l << "[+] Node " << id << " connected to node " << next->id << " with weight " << w << "\n";
         }
     }
-    void setWeight(Node *next, double w)
+    void setWeight(int nextNodeID, int nextLayerID, double w)
     {
-        for (int i = 0; i < nextNodes.size(); i++)
+        nextNodes[nextNodeID].second = w;
+        if(log)
         {
-            if (nextNodes[i].first == next)
-            {
-                
-                nextNodes[i].second = w;
-                if(log)
-                    l << "[+] Weight set to " << w << " for node " << next->id << " from node " << id << "\n";
-            }
+            l << "[+] Weight set to " << w << " for node " << nextNodes[nextNodeID].first->id << " from node " << id << "\n";
         }
     }
     void setWeightAll(double w)
@@ -123,6 +125,12 @@ public:
     double getValue()
     {
         return value;
+    }
+    double getDelta(double expected)
+    {
+        // ! not verified
+        delta = value * (1 - value) * (expected - value);
+        return delta;
     }
 
     void setValue(double val)
@@ -183,11 +191,43 @@ public:
         }
         en
     }
-    void randomiseWeights()
+    void printWeights()
     {
+        cout << "[x] Node " << id << " at layer " << layerId << " has weights:\n";
+        for (int i = 0; i < nextNodes.size(); i++)
+        {
+            cout << "  " << nextNodes[i].second << "\n";
+        }
+        cout.flush();
+        en
+    }
+    void randomiseWeights(){
         for (int i = 0; i < nextNodes.size(); i++)
         {
             nextNodes[i].second = u.randomDouble(-1, 1);
         }
+    }
+    void printDetails()
+    {
+        cout 
+        << (char)218 << "Node: " << id << '\n' 
+        << (char)195 << " Value: " << value << '\n'
+        << (char)195 << " Layer: " << layerId << '\n'
+        << (char)195 << " Bias: " << bias << "\n"
+        << (char)195 << " Activation function: " << activationFunction << "\n"
+        << (char)195 << " Logging: " << log << "\n"
+        << (char)195 << " Delta: " << delta << "\n"
+        << (char)195 << " Error: " << error << "\n"
+        << (char)192 << " Next nodes: \n";
+        cout << (char)9 << (char)218 << "Node " << nextNodes[0].first->id << " -->  weight " << nextNodes[0].second;
+        en
+        for (int i = 1; i < nextNodes.size(); i++)
+        {
+            
+            cout << (char)9 << (char)195 << "Node " << nextNodes[i].first->id << " -->  weight " << nextNodes[i].second;
+
+            en
+        }
+        cout.flush();
     }
 };

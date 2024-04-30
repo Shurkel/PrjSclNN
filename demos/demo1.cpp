@@ -22,6 +22,7 @@ void runDemo1(string outputfile)
     /*
     relu - 0
     sigmoid - 1
+    softmax - 2
     */
 
     
@@ -35,9 +36,18 @@ void runDemo1(string outputfile)
     
     n.setActivateAll(1);
     
-    n.setWeightAll(1.0);
     
     n.connectLayers();
+    n.setWeightAll(1.0);
+    //check weights
+    n.printNodeDetails(0, 0);
+    //n.printNodeDetails(1, 0);
+    
+    
+
+    
+
+    en en
     cout << "Before training\n";
     en en
     for(int i = 0; i < inputs.size(); i++)
@@ -47,20 +57,21 @@ void runDemo1(string outputfile)
         n.setValueFromVector(inputs[i]);
         n.passValues();
         n.setExpected(outputs[i]);
+        n.clearCosts();
         n.getCosts();
-        cout << "Input: " << inputs[i][0] << " " << inputs[i][1] << "\n";
-        cout << "Output: " << n.layers.back().nodes[0].value << "\n";
-        cout << "Expected: " << outputs[i][0] << "\n";
-        cout << "Cost: " << n.costs[0] << "\n";
-        cout << "-----\n";
+        //cout << "Input: " << inputs[i][0] << " " << inputs[i][1] << "\n";
+        //cout << "Output: " << n.layers.back().nodes[0].value << "\n";
+        //cout << "Expected: " << outputs[i][0] << "\n";
+        //cout << "Cost: " << n.costs[0] << "\n";
+        //cout << "-----\n";
 
     }
     cout << "Press any key to continue\n";
-    cin.get();
+    
     cout << "[+]Training\n";
     for(int i = 0; i < 100; i++)
     {
-        cout << "Epoch " << i << "\n";
+        //cout << "Epoch " << i << "\n";
         for(int j = 0; j < inputs.size(); j++)
         {
             
@@ -71,11 +82,15 @@ void runDemo1(string outputfile)
             n.setExpected(outputs[j]);
             
             n.getCosts();
-            n.backpropagation(0.1);
+            
+            
             
             
         }
     }
+    n.printNodeDetails(0, 0);
+    return;
+
 
     cout << "After training\n";
     double avgCost = 0;

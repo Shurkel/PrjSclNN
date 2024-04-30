@@ -25,27 +25,16 @@ public:
         }
     }
 
-    void noActivate()
+    void noActivate(int nodeId)
     {
-        if(yesActivate)
+        nodes[nodeId].noActivate();
+    }
+    void noActivateAll()
+    {
+        for (int i = 0; i < nodes.size(); i++)
         {
-            yesActivate = false;
-            for (int i = 0; i < nodes.size(); i++)
-            {
-                nodes[i].yesActivate = yesActivate;
-            }
-            l << "[-] Layer " << layerId << " deactivated\n";
+            nodes[i].noActivate();
         }
-        else
-        {
-            yesActivate = true;
-            for (int i = 0; i < nodes.size(); i++)
-            {
-                nodes[i].yesActivate = yesActivate;
-            }
-            l << "[+] Layer " << layerId << " activated\n";
-        }
-        
     }
     void setActivateAll(int function)
     {
@@ -119,7 +108,7 @@ public:
 
         }
     }
-    void printLayer()
+    void logLayer()
     {
         
         len len
@@ -135,5 +124,25 @@ public:
         l << "---------------------------\n";
         len 
     }
-    
+    void printLayer()
+    {
+        
+        
+        cout << "---------------------------\n";
+        cout << "| LayerID " << layerId << "                |\n";
+        cout << "---------------------------\n";
+        cout << "| Node Id | Value | Bias   |\n";
+        cout << "---------------------------\n";
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            cout << "|  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << " ------> " << nodes[i].bias << " |" << "\n";
+        }
+        cout << "---------------------------\n";
+        en 
+    }
+
+    void printDetails(int nodeId)
+    {
+        nodes[nodeId].printDetails();
+    }
 };
