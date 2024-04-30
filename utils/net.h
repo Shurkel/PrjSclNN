@@ -253,6 +253,13 @@ public:
         }
     }
 
+    void logLayers()
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            layers[i].logLayer();
+        }
+    }
     // node functions
     void setWeight(int nodeID, int layerID, int nextNodeID, int nextLayerID, double w)
     {

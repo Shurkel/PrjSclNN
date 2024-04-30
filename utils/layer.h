@@ -112,8 +112,8 @@ public:
     {
         len
         TextTable t('-', '|', '+');
-        cout << "+-------+\n";
-        cout << "|Layer " << layerId << "|\n";
+        l << "+-------+\n";
+        l << "|Layer " << layerId << "|\n";
         t.add("Node Id");
         t.add("Value");
         t.add("Bias");

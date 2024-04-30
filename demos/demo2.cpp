@@ -41,7 +41,7 @@ void runDemo2(string outputfile)
         n.getCosts();
         n.getSSR();
         n.printNet();
-        n.printLayers();
+        n.logLayers();
         
         n.printCosts();
         n.clearCosts();
