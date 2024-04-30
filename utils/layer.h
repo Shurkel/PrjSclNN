@@ -126,23 +126,24 @@ public:
     }
     void printLayer()
     {
-        
-        
-        cout << "---------------------------\n";
-        cout << "| LayerID " << layerId << "                |\n";
-        cout << "---------------------------\n";
-        cout << "| Node Id | Value | Bias   |\n";
-        cout << "---------------------------\n";
+       //with cout
+        en
+        TextTable t('-', '|', '+');
+        cout << "+-------+\n";
+        cout << "|Layer " << layerId << "|\n";
+        t.add("Node Id");
+        t.add("Value");
+        t.add("Bias");
+        t.endOfRow();
         for (int i = 0; i < nodes.size(); i++)
         {
-            cout << "|  " << nodes[i].getId() << " ------> " << nodes[i].getValue() << " ------> " << nodes[i].bias << " |" << "\n";
+            t.add(to_string(nodes[i].getId()));
+            t.add(to_string(nodes[i].getValue()));
+            t.add(to_string(nodes[i].bias));
+            t.endOfRow();
         }
-        cout << "---------------------------\n";
-        en 
+        cout << t;
+        
     }
-
-    void printDetails(int nodeId)
-    {
-        nodes[nodeId].printDetails();
-    }
+    
 };

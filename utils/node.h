@@ -7,11 +7,14 @@ class Node
 public:
     double value;
     double bias = 0.0;
+    double gradient = 0.0;
     int id = 0;
     int layerId = 0;
     bool log = false;
     bool yesActivate = true;
     int activationFunction = 0;
+    double error = 0.0;
+
     vector<pair<Node *, double>> nextNodes;//with weights
     double delta = 0.0;
     double error = 0.0;
@@ -31,6 +34,9 @@ public:
     
     // * *NODE FUNCTIONS
     
+    
+
+
     void setActivate(int function)
     {
         activationFunction = function;
@@ -183,25 +189,25 @@ public:
     }
     void printNextNodes()
     {
-        cout << "[x] Node " << id << " at layer " << layerId << " is connected to nodes:\n"
-        <<"LayerID | nodeID |  weight\n";
+        TextTable t('-', '|', '+');
+        t.add("LayerID");
+        t.add("nodeID");
+        t.add("weight");
+        t.endOfRow();
+        cout << "[x] Node " << id << " at layer " << layerId << " is connected to nodes:\n";
         for (int i = 0; i < nextNodes.size(); i++)
         {
-            cout << "  "  << nextNodes[i].first->layerId << "          " << nextNodes[i].first->getId()<< "         " << nextNodes[i].second << "\n";
+            t.add(to_string(nextNodes[i].first->layerId));
+            t.add(to_string(nextNodes[i].first->id));
+            t.add(to_string(nextNodes[i].second));
+            t.endOfRow();   
         }
+        t.setAlignment(2, TextTable::Alignment::RIGHT);
+        cout << t;
         en
     }
-    void printWeights()
+    void randomiseWeights()
     {
-        cout << "[x] Node " << id << " at layer " << layerId << " has weights:\n";
-        for (int i = 0; i < nextNodes.size(); i++)
-        {
-            cout << "  " << nextNodes[i].second << "\n";
-        }
-        cout.flush();
-        en
-    }
-    void randomiseWeights(){
         for (int i = 0; i < nextNodes.size(); i++)
         {
             nextNodes[i].second = u.randomDouble(-1, 1);
