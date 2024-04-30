@@ -119,7 +119,7 @@ public:
 
         }
     }
-    void printLayer()
+    void logLayer()
     {
         
         len len
@@ -134,6 +134,27 @@ public:
         }
         l << "---------------------------\n";
         len 
+    }
+    void printLayer()
+    {
+       //with cout
+        en
+        TextTable t('-', '|', '+');
+        cout << "+-------+\n";
+        cout << "|Layer " << layerId << "|\n";
+        t.add("Node Id");
+        t.add("Value");
+        t.add("Bias");
+        t.endOfRow();
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            t.add(to_string(nodes[i].getId()));
+            t.add(to_string(nodes[i].getValue()));
+            t.add(to_string(nodes[i].bias));
+            t.endOfRow();
+        }
+        cout << t;
+        
     }
     
 };
