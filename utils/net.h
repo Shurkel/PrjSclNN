@@ -10,7 +10,8 @@ public:
     double cost = 0.0;
     //sum of squared residuals
     double SSR = 0.0;
-
+    //derivative of SSR
+    double dSSR = 0.0;
 
 
     net(vector<int> layerSizes)
@@ -70,13 +71,11 @@ public:
         }
     }
     
+    
+    
     void setExpected(vector<double> expectedValues)
     {
-        expected = expectedValues;
-    }
-    
-    void setExpectedFromVector(vector<double> expectedValues)
-    {
+        expected.clear();
         for (int i = 0; i < layers.back().nodes.size(); i++)
         {
             expected.push_back(expectedValues[i]);
@@ -85,7 +84,7 @@ public:
     
     void getCosts()
     {
-        
+        costs.clear();
         if (expected.empty())
         {
             cerr << (char)218 << "[x] Error: Costs vector is empty.\n"
@@ -99,22 +98,31 @@ public:
             }
             return;
         }
-        for (int i = 0; i < layers.back().nodes.size(); i++)
+        for(int i = 0; i < layers.back().nodes.size(); i++)
         {
-            costs.push_back(expected[i] - layers.back().nodes[i].value);
+            costs.push_back(layers.back().nodes[i].value - expected[i]);
             layers.back().nodes[i].error = costs[i];
+            /* cout << "costs.push_back ( layers.back().nodes[i].value - expected[i] ) " << "\n";
+            cout << "layers.back().nodes[i].value: " << layers.back().nodes[i].value << "\n";
+            cout << "expected[i]: " << expected[i] << "\n"; */
         }
         
     }
     
     void getSSR()
     {
+        clearCosts();
+        getCosts();
         for (int i = 0; i < costs.size(); i++)
         {
             SSR += pow(costs[i], 2);
+            dSSR += -2 * costs[i];
+            
+
             //cout << "SSR += pow(costs[i], 2) "<< "\n";
             //cout << "costs[i]: " << costs[i] << "\n";
         }
+        
     }
 
     void clearCosts()
@@ -122,6 +130,12 @@ public:
         costs.clear();
     }
     
+    void clearSSR()
+    {
+        SSR = 0.0;
+        dSSR = 0.0;
+    }
+
     void logCosts()
     {
         l << "\n\n[+]Costs: ";
@@ -139,7 +153,6 @@ public:
         {
             cout << costs[i] << " ";
         }
-        cout << "\n";
         cout.flush();
     }
     
@@ -161,7 +174,6 @@ public:
         {
             cout << layers.back().nodes[i].value << " ";
         }
-        cout << "\n";
         cout.flush();
     }
     
@@ -266,9 +278,9 @@ public:
         layers[layerID].nodes[nodeID].setWeight(nextNodeID, nextLayerID, w);
     }
 
-    void setBias(int nodeID, int layerID, double w)
+    void setBias(int nodeID, int layerID, double b)
     {
-        layers[layerID].nodes[nodeID].setBias(w);
+        layers[layerID].nodes[nodeID].setBias(b);
     }   
     
     void printNextNodes(int layerId, int nodeId)
@@ -284,6 +296,7 @@ public:
             layers[i].connect(&layers[i + 1]);
         }
     }
+    
     void passValues()
     {
         for (int i = 0; i < layers.size(); i++)
@@ -309,8 +322,20 @@ public:
         }
     }
 
+    void setBiasAll(double b)
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            for (int j = 0; j < layers[i].nodes.size(); j++)
+            {
+                layers[i].nodes[j].setBias(b);
+            }
+        }
+    }
+
     void ranomiseAllWeights()
     {
+        // ! not working
         for (int i = 0; i < layers.size(); i++)
         {
             for (int j = 0; j < layers[i].nodes.size(); j++)
@@ -319,8 +344,27 @@ public:
             }
         }
     }
+    
     void printNodeDetails(int nodeId, int layerId)
     {
         layers[layerId].nodes[nodeId].printDetails();
     }
+
+    void backPropagate(double learningRate)
+    {
+        getSSR();
+        double slope = dSSR;
+        double stepSize = slope * learningRate;
+        en
+        cout << "SSR: " << SSR;
+        cout << "\nBias " << layers.back().nodes[0].bias;
+        //cout << "slope: " << slope << "\n";
+        //cout << "stepSize: " << stepSize << "\n";
+        //cout << "Old bias: " << layers.back().nodes[0].bias << "\n";
+        layers.back().nodes[0].bias += stepSize;
+        //cout << "New bias: " << layers.back().nodes[0].bias << "\n";
+    }
+
+
+
 };

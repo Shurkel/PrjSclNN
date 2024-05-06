@@ -146,11 +146,11 @@ public:
             l << "[+] Node " << id << " value set to " << val << "\n";
     }
     
-    void setBias(double w)
+    void setBias(double b)
     {
-        bias = w;
+        bias = b;
         if(log)
-            l << "[+] Node " << id << " bias set to " << w << "\n";
+            l << "[+] Node " << id << " bias set to " << b << "\n";
     }
     void setId(int id)
     {
@@ -236,4 +236,7 @@ public:
         }
         cout.flush();
     }
+
+
+    
 };

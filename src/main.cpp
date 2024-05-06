@@ -8,6 +8,6 @@ int main()
     
     l<<"[+] Starting demo1\n";
     l.flush();
-    runDemo2("demo2_log.out");
+    runDemo2("demo2_log.out"); 
     
 }
