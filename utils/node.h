@@ -60,7 +60,10 @@ public:
     }
     void noActivate()
     {
-        yesActivate = false;
+        if(yesActivate)
+            yesActivate = false;
+        else
+            yesActivate = true;
         if(log)
         {
             l << "[-] Node " << id << " deactivated\n";

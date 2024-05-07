@@ -17,22 +17,27 @@ void runDemo2(string outputfile)
     
     t.start();
     
-    net n({1, 1});
+    net n({1, 1, 1});
     
     n.noActivateAll();
-    
-    
+    n.noActivate(1, 0);
+    n.setActivate(1, 2);
     n.connectLayers();
     
     n.setWeightAll(1);
-    n.setBiasAll(0);
+    n.setWeight(1, 0, 2, 0, 3);
+    n.setBias(2, 0, 3);
+
+
+
+
+
+
+    vector<double> input = {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5};
+    vector<double> expected = {1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5};
     
 
-    vector<double> input = {0, 0.5, 1};
-    vector<double> expected = {1, 1.5, 2};
-    
-
-    for(int j = 0; j < 5; j++)
+    for(int j = 0; j < 100; j++)
     {
         cout << "/////////////GEN " << j << "/////////////\n";
         for(int i = 0; i < input.size(); i++)
@@ -53,7 +58,9 @@ void runDemo2(string outputfile)
         //n.printCosts();
         n.clearCosts();
         n.clearSSR();
+
         cout << "\n----------------\n";
+        
         }
     }
     

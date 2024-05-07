@@ -213,7 +213,7 @@ public:
         }
     }
 
-    void noActivate(int nodeId, int layerId)
+    void noActivate(int layerId, int nodeId)
     {
         layers[layerId].noActivate(nodeId);
     }
@@ -273,12 +273,12 @@ public:
         }
     }
     // node functions
-    void setWeight(int nodeID, int layerID, int nextNodeID, int nextLayerID, double w)
+    void setWeight(int layerID, int nodeID, int nextLayerID, int nextNodeID, double w)
     {
         layers[layerID].nodes[nodeID].setWeight(nextNodeID, nextLayerID, w);
     }
 
-    void setBias(int nodeID, int layerID, double b)
+    void setBias(int layerID, int nodeID, double b)
     {
         layers[layerID].nodes[nodeID].setBias(b);
     }   
@@ -353,16 +353,35 @@ public:
     void backPropagate(double learningRate)
     {
         getSSR();
-        double slope = dSSR;
-        double stepSize = slope * learningRate;
-        en
-        cout << "SSR: " << SSR;
+
+        //gradients
+        
+
+
+
+
+
+        //dSSR cu respect la output 
+        /*
+        dSSR/dbias = dSSR/doutput * doutput/dbias
+        
+        double dSSR_dBias = dSSR;
+        double stepSize = dSSR_dBias * learningRate;
+        layers.back().nodes[0].bias += stepSize;
+
+        double dSSR_dWeight = dSSR * layers[1].nodes[0].value;
+        stepSize = dSSR_dWeight * learningRate;
+        layers[1].nodes[0].nextNodes[0].second += stepSize;
+
+        cout << "\nSSR: " << SSR;
         cout << "\nBias " << layers.back().nodes[0].bias;
+        cout << "\nWeight " << layers[1].nodes[0].nextNodes[0].second;
         //cout << "slope: " << slope << "\n";
         //cout << "stepSize: " << stepSize << "\n";
         //cout << "Old bias: " << layers.back().nodes[0].bias << "\n";
-        layers.back().nodes[0].bias += stepSize;
+        
         //cout << "New bias: " << layers.back().nodes[0].bias << "\n";
+        */
     }
 
 
