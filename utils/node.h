@@ -1,13 +1,22 @@
 
 #include "timer.h"
 
+
+
 class Node
 {
 
 public:
+    struct nextNodes
+    {
+        Node *node;
+        double weight;
+        double gradient = 0;
+    };
     double value;
     double bias = 0.0;
-    double gradient = 0.0;
+    double biasGradient = 0.0;
+    
     int id = 0;
     int layerId = 0;
     bool log = false;
@@ -15,10 +24,8 @@ public:
     int activationFunction = 0;
     
 
-    vector<pair<Node *, double>> nextNodes;//with weights
-    double delta = 0.0;
-    double error = 0.0;
-
+    vector<nextNodes> next;//<node, weight>
+    
     
 
     Node(double val, double b = 0.0)
@@ -34,9 +41,26 @@ public:
     
     // * *NODE FUNCTIONS
     
-    
-
-
+    void clean()
+    {
+        value = 0;
+        bias = 0;
+    }
+    double weight(int nextNodeID)
+    {
+        return next[nextNodeID].weight;
+    }
+    double weight(Node *nextNode)
+    {
+        for (int i = 0; i < next.size(); i++)
+        {
+            if (next[i].node == nextNode)
+            {
+                return next[i].weight;
+            }
+        }
+        return 0;
+    }
     void setActivate(int function)
     {
         activationFunction = function;
@@ -83,47 +107,47 @@ public:
             log = true;
         }            
     }
-    void connect(Node *next, double w=1.0)
+    void connect(Node *nextNode, double w=1.0)
     {
-        nextNodes.push_back(make_pair(next, w));
+        next.push_back({nextNode, w});
         //log
         if(log)
         {
-            l << "[+] Node " << id << " connected to node " << next->id << " with weight " << w << "\n";
+            l << "[+] Node " << id << " connected to node " << nextNode->id << " with weight " << w << "\n";
         }
     }
     void setWeight(int nextNodeID, int nextLayerID, double w)
     {
-        nextNodes[nextNodeID].second = w;
+        next[nextNodeID].weight = w;
         if(log)
         {
-            l << "[+] Weight set to " << w << " for node " << nextNodes[nextNodeID].first->id << " from node " << id << "\n";
+            l << "[+] Weight set to " << w << " for node " << next[nextNodeID].node->id << " from node " << id << "\n";
         }
     }
     void setWeightAll(double w)
     {
-        for (int i = 0; i < nextNodes.size(); i++)
+        for (int i = 0; i < next.size(); i++)
         {
-            nextNodes[i].second = w;
+            next[i].weight = w;
             if(log)
-                l << "[+] Weight set to " << w << " for node " << nextNodes[i].first->id << " from node " << id << "\n";
+                l << "[+] Weight set to " << w << " for node " << next[i].node->id << " from node " << id << "\n";
         }
     }
-    void disconnect(Node *next)
+    void disconnect(Node *nextNode)
     {
-        for (int i = 0; i < nextNodes.size(); i++)
+        for (int i = 0; i < next.size(); i++)
         {
-            if (nextNodes[i].first == next)
+            if (next[i].node == nextNode)
             {
-                nextNodes.erase(nextNodes.begin() + i);
+                next.erase(next.begin() + i);
                 if(log)
-                    l << "[-] Node " << id << " disconnected from node " << next->id << "\n";
+                    l << "[-] Node " << id << " disconnected from node " << nextNode->id << "\n";
             }
         }
     }
     void disconnectAll()
     {
-        nextNodes.clear();
+        next.clear();
         if(log)
             l << "[-] Cleared all connections for node " << id << "\n";
     }
@@ -135,12 +159,7 @@ public:
     {
         return value;
     }
-    double getDelta(double expected)
-    {
-        // ! not verified
-        delta = value * (1 - value) * (expected - value);
-        return delta;
-    }
+    
 
     void setValue(double val)
     {
@@ -163,9 +182,9 @@ public:
 
     }
 
-    vector<pair<Node*, double>> getNextNodes() const
+    vector<nextNodes> getNextNodes()
     {
-        return nextNodes;
+        return next;
     }
     void passValues()
     {
@@ -177,15 +196,15 @@ public:
         }
             
             
-        for (int i = 0; i < nextNodes.size(); i++)
+        for (int i = 0; i < next.size(); i++)
         {
 
-            nextNodes[i].first->setValue(
-                (value*nextNodes[i].second) + nextNodes[i].first->getValue()
-                );
+            next[i].node->setValue(
+                (value*next[i].weight) + next[i].node->getValue()
+                );// next node = this value * weight + next node value
             if(log)
             {
-                l << "[+] Node " << id << " passed value " << value << " to node " << nextNodes[i].first->id << " with weight " << nextNodes[i].second << "\n";
+                l << "[+] Node " << id << " passed value " << value << " to node " << next[i].node->id << " with weight " << next[i].weight << "\n";
             }
         }
 
@@ -198,11 +217,11 @@ public:
         t.add("weight");
         t.endOfRow();
         cout << "[x] Node " << id << " at layer " << layerId << " is connected to nodes:\n";
-        for (int i = 0; i < nextNodes.size(); i++)
+        for (int i = 0; i < next.size(); i++)
         {
-            t.add(to_string(nextNodes[i].first->layerId));
-            t.add(to_string(nextNodes[i].first->id));
-            t.add(to_string(nextNodes[i].second));
+            t.add(to_string(next[i].node->layerId));
+            t.add(to_string(next[i].node->id));
+            t.add(to_string(next[i].weight));
             t.endOfRow();   
         }
         t.setAlignment(2, TextTable::Alignment::RIGHT);
@@ -211,9 +230,9 @@ public:
     }
     void randomiseWeights()
     {
-        for (int i = 0; i < nextNodes.size(); i++)
+        for (int i = 0; i < next.size(); i++)
         {
-            nextNodes[i].second = u.randomDouble(-1, 1);
+            next[i].weight = u.randomDouble(-1, 1);
         }
     }
     void printDetails()
@@ -225,15 +244,13 @@ public:
         << (char)195 << " Bias: " << bias << "\n"
         << (char)195 << " Activation function: " << activationFunction << "\n"
         << (char)195 << " Logging: " << log << "\n"
-        << (char)195 << " Delta: " << delta << "\n"
-        << (char)195 << " Error: " << error << "\n"
         << (char)192 << " Next nodes: \n";
-        cout << (char)9 << (char)218 << "Node " << nextNodes[0].first->id << " -->  weight " << nextNodes[0].second;
+        cout << (char)9 << (char)218 << "Node " << next[0].node->id << " -->  weight " << next[0].weight;
         en
-        for (int i = 1; i < nextNodes.size(); i++)
+        for (int i = 1; i < next.size(); i++)
         {
             
-            cout << (char)9 << (char)195 << "Node " << nextNodes[i].first->id << " -->  weight " << nextNodes[i].second;
+            cout << (char)9 << (char)195 << "Node " << next[i].node->id << " -->  weight " << next[i].weight;
 
             en
         }

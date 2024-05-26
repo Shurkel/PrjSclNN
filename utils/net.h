@@ -50,7 +50,23 @@ public:
             log = true;
     }
     
+    void clean()
+    {
+        for(int i = 0; i < layers.size(); i++)
+        {
+            layers[i].clean();
+        }
+    }
 
+    void clean(int i)
+    {
+        for(int i = 0; i < layers.size(); i++)
+        {
+            if(layers[i].layerId == 0)
+                continue;
+            layers[i].clean();
+        }
+    }
 
     void loggingGlobal()
     {
@@ -71,8 +87,16 @@ public:
         }
     }
     
+    double weight(int layerId, int nodeId, int nextLayerId, int nextNodeId)
+    {
+        return layers[layerId].nodes[nodeId].weight(&layers[nextLayerId].nodes[nextNodeId]);
+    }
     
-    
+    double weight(Node *node, Node *nextNode)
+    {
+        return node->weight(nextNode);
+    }
+
     void setExpected(vector<double> expectedValues)
     {
         expected.clear();
@@ -101,7 +125,7 @@ public:
         for(int i = 0; i < layers.back().nodes.size(); i++)
         {
             costs.push_back(layers.back().nodes[i].value - expected[i]);
-            layers.back().nodes[i].error = costs[i];
+            
             /* cout << "costs.push_back ( layers.back().nodes[i].value - expected[i] ) " << "\n";
             cout << "layers.back().nodes[i].value: " << layers.back().nodes[i].value << "\n";
             cout << "expected[i]: " << expected[i] << "\n"; */
@@ -190,7 +214,7 @@ public:
         layers[layerId].setValue(nodeId, val);
     }
     
-    void setValueFromVector(vector<double> values)
+    void setInputFromVector(vector<double> values)
     {
         layers[0].setValueFromVector(values);
     }
@@ -350,38 +374,120 @@ public:
         layers[layerId].nodes[nodeId].printDetails();
     }
 
-    void backPropagate(double learningRate)
+    void printSSR()
     {
+        cout << "\n[+]SSR: " << SSR;
+        cout.flush();}
+
+    void applyGradient(int learningRate)
+    {
+        for (int i = 0; i < layers.size(); i++)
+        {
+            for (int j = 0; j < layers[i].nodes.size(); j++)
+            {
+                for(int k = 0; k < layers[i].nodes[j].next.size(); k++)
+                {
+                    layers[i].nodes[j].next[k].weight = layers[i].nodes[j].next[k].gradient * learningRate;
+                }
+                layers[i].nodes[j].bias -= layers[i].nodes[j].biasGradient * learningRate;
+            }
+        }
+    }
+
+
+
+    void getGradients(pair<vector<double>, vector<double>> trainingData, double learningRate, int inputIndex)
+    {
+        const double h = 0.0001;
+        clean();
+        setInputFromVector({trainingData.first[inputIndex]});
+        setExpected({trainingData.second[inputIndex]});
+        passValues();
         getSSR();
+        double oldSSR = SSR;
+        //iterate trough layers
+        for(int i = 0; i < layers.size(); i++)
+        {
+            for(int j = 0; j < layers[i].nodes.size(); j++)
+            {
+                if(i < layers.size())
+                {
+                    for(int k = 0; k < layers[i].nodes[j].next.size(); k++)
+                    {
+                        layers[i].nodes[j].next[k].weight += h;
+                        clean(0);
+                        passValues();
+                        getSSR();
+                        cout << "Old SSR: " << oldSSR << "\n";
+                        cout << "New SSR: " << SSR << "\n";
+                        double deltaCost = SSR - oldSSR;
+                        layers[i].nodes[j].next[k].weight -= h;
+                        layers[i].nodes[j].next[k].gradient = deltaCost / h;
+                    }
+                }
+                layers[i].nodes[j].bias += h;
+                clean(0);
+                passValues();
+                getSSR();
+                double deltaCost = SSR - oldSSR;
+                layers[i].nodes[j].bias -= h;
+                layers[i].nodes[j].biasGradient = deltaCost / h;
+                
+            }
+        }
+        
+    }
 
-        //gradients
+
+
+    void backPropagate(pair<vector<double>, vector<double>> trainingData, int epochs, double learningRate)
+    {
+        //passValues();
+        //getSSR();
+        //getCosts
+        for(int i = 0; i < epochs; i++)
+        {
+            for(int j = 0; j < trainingData.first.size(); j++)
+            {
+                
+                
+
+                //https://www.youtube.com/watch?v=hfMk-kjRv4c&t=1397s&ab_channel=SebastianLague
+                getGradients(trainingData, learningRate, j);
+                applyGradient(learningRate);
+                //printSSR();
+                clearCosts();
+                clearSSR();
+            }
+            
+        }
+        
+
+        
+        
         
 
 
 
 
-
-        //dSSR cu respect la output 
-        /*
-        dSSR/dbias = dSSR/doutput * doutput/dbias
         
-        double dSSR_dBias = dSSR;
+        /* double dSSR_dBias = dSSR;
         double stepSize = dSSR_dBias * learningRate;
         layers.back().nodes[0].bias += stepSize;
 
         double dSSR_dWeight = dSSR * layers[1].nodes[0].value;
         stepSize = dSSR_dWeight * learningRate;
-        layers[1].nodes[0].nextNodes[0].second += stepSize;
+        layers[1].nodes[0].next[0].weight += stepSize;
 
         cout << "\nSSR: " << SSR;
         cout << "\nBias " << layers.back().nodes[0].bias;
-        cout << "\nWeight " << layers[1].nodes[0].nextNodes[0].second;
+        cout << "\nWeight " << layers[1].nodes[0].next[0].weight;
         //cout << "slope: " << slope << "\n";
         //cout << "stepSize: " << stepSize << "\n";
         //cout << "Old bias: " << layers.back().nodes[0].bias << "\n";
         
-        //cout << "New bias: " << layers.back().nodes[0].bias << "\n";
-        */
+        //cout << "New bias: " << layers.back().nodes[0].bias << "\n"; */
+        
     }
 
 

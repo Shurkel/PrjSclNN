@@ -35,37 +35,11 @@ void runDemo2(string outputfile)
 
     vector<double> input = {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5};
     vector<double> expected = {1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5};
+    pair<double, double> trainingData;
+    int epochs = 1;
     
+    n.backPropagate({input, expected}, epochs, 0.1);
 
-    for(int j = 0; j < 100; j++)
-    {
-        cout << "/////////////GEN " << j << "/////////////\n";
-        for(int i = 0; i < input.size(); i++)
-        {
-        n.setValueAll(0);
-        n.setValueFromVector({input[i]});
-        
-        n.setExpected({expected[i]});
-        
-        cout << "[+]Input: " << input[i] << "\n";
-        cout << "[+]Expected: " << expected[i];
-        n.passValues();
-        n.printActualOutput();
-        
-        n.backPropagate(0.1);
-        n.printCosts();
-        //cin.get();
-        //n.printCosts();
-        n.clearCosts();
-        n.clearSSR();
-
-        cout << "\n----------------\n";
-        
-        }
-    }
-    
-    
-    
     
     
 
