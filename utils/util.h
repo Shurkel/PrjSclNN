@@ -22,6 +22,22 @@ public:
         //f(x) = log(1 + e^x)
         return log(1 + exp(x));
     }
+    double drelu(double x)
+    {
+        if (x > 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    double dsigmoid(double x)
+    {
+        return sigmoid(x) * (1 - sigmoid(x));
+    }
+    
     void logVector(vector<double> v)
     {
         for (int i = 0; i < v.size(); i++)

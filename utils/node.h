@@ -14,6 +14,7 @@ public:
         double gradient = 0;
     };
     double value;
+    double unactivatedValue;
     double bias = 0.0;
     double biasGradient = 0.0;
     
@@ -164,6 +165,7 @@ public:
     void setValue(double val)
     {
         value = val;
+        unactivatedValue = val;
         if(log)
             l << "[+] Node " << id << " value set to " << val << "\n";
     }
@@ -189,24 +191,24 @@ public:
     void passValues()
     {
         value += bias;
+        unactivatedValue = value;
+        
         if(yesActivate)
         {
             //cout << "Activating node " << id << " with value " << value << "\n";
             activate(activationFunction);
-        }
-            
+        }    
             
         for (int i = 0; i < next.size(); i++)
         {
 
-            next[i].node->setValue(
-                (value*next[i].weight) + next[i].node->getValue()
-                );// next node = this value * weight + next node value
+            next[i].node->value = value*next[i].weight + next[i].node->getValue();// next node value += this value * weight 
             if(log)
             {
                 l << "[+] Node " << id << " passed value " << value << " to node " << next[i].node->id << " with weight " << next[i].weight << "\n";
             }
         }
+        
 
     }
     void printNextNodes()
@@ -238,22 +240,27 @@ public:
     void printDetails()
     {
         cout 
+        << '\n'
         << (char)218 << "Node: " << id << '\n' 
         << (char)195 << " Value: " << value << '\n'
+        << (char)195 << " Unactivated value: " << unactivatedValue << '\n'
         << (char)195 << " Layer: " << layerId << '\n'
         << (char)195 << " Bias: " << bias << "\n"
         << (char)195 << " Activation function: " << activationFunction << "\n"
         << (char)195 << " Logging: " << log << "\n"
         << (char)192 << " Next nodes: \n";
-        cout << (char)9 << (char)218 << "Node " << next[0].node->id << " -->  weight " << next[0].weight;
-        en
-        for (int i = 1; i < next.size(); i++)
+        if(next.size() != 0)
         {
-            
-            cout << (char)9 << (char)195 << "Node " << next[i].node->id << " -->  weight " << next[i].weight;
-
+            cout << (char)9 << (char)218 << "Node " << next[0].node->id << " -->  weight " << next[0].weight;
             en
+            for (int i = 1; i < next.size(); i++)
+            {
+                cout << (char)9 << (char)195 << "Node " << next[i].node->id << " -->  weight " << next[i].weight;
+                en
+            }
         }
+        
+        
         cout.flush();
     }
 

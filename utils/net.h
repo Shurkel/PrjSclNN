@@ -170,6 +170,16 @@ public:
         len
     }
     
+    void printInput()
+    {
+        cout << "\n[+]Input: ";
+        for (int i = 0; i < layers[0].nodes.size(); i++)
+        {
+            cout << layers[0].nodes[i].value << " ";
+        }
+        cout.flush();
+    }
+
     void printCosts()
     {
         cout << "\n[+]Costs: ";
@@ -187,7 +197,6 @@ public:
         {
             cout << expected[i] << " ";
         }
-        cout << "\n";
         cout.flush();
     }
 
@@ -214,9 +223,9 @@ public:
         layers[layerId].setValue(nodeId, val);
     }
     
-    void setInputFromVector(vector<double> values)
+    void setInputFromVector(pair<double, double> values)
     {
-        layers[0].setValueFromVector(values);
+        layers[0].setValueFromVector({values.first, values.second});
     }
     
     void setBiasAll(int layerId, double w)
@@ -240,6 +249,13 @@ public:
     void noActivate(int layerId, int nodeId)
     {
         layers[layerId].noActivate(nodeId);
+    }
+    void noActivate(int layerId)
+    {
+        for(int i = 0; i < layers[layerId].nodes.size(); i++)
+        {
+            layers[layerId].noActivate(i);
+        }
     }
 
     void noActivateAll()
@@ -379,70 +395,52 @@ public:
         cout << "\n[+]SSR: " << SSR;
         cout.flush();}
 
-    void applyGradient(int learningRate)
+    
+
+
+    void backPropagate(pair<vector< pair<double, double>>,vector<double>> trainingData, int epochs, double learningRate)
     {
-        for (int i = 0; i < layers.size(); i++)
+
+        for(int i = 0; i < epochs; i++)
         {
-            for (int j = 0; j < layers[i].nodes.size(); j++)
+            clearSSR();
+            for(int j = 0; j < trainingData.first.size(); j++)
             {
-                for(int k = 0; k < layers[i].nodes[j].next.size(); k++)
-                {
-                    layers[i].nodes[j].next[k].weight = layers[i].nodes[j].next[k].gradient * learningRate;
-                }
-                layers[i].nodes[j].bias -= layers[i].nodes[j].biasGradient * learningRate;
-            }
-        }
-    }
-
-
-
-    void getGradients(pair<vector<double>, vector<double>> trainingData, double learningRate, int inputIndex)
-    {
-        const double h = 0.0001;
-        clean();
-        setInputFromVector({trainingData.first[inputIndex]});
-        setExpected({trainingData.second[inputIndex]});
-        passValues();
-        getSSR();
-        double oldSSR = SSR;
-        //iterate trough layers
-        for(int i = 0; i < layers.size(); i++)
-        {
-            for(int j = 0; j < layers[i].nodes.size(); j++)
-            {
-                if(i < layers.size())
-                {
-                    for(int k = 0; k < layers[i].nodes[j].next.size(); k++)
-                    {
-                        layers[i].nodes[j].next[k].weight += h;
-                        clean(0);
-                        passValues();
-                        getSSR();
-                        cout << "Old SSR: " << oldSSR << "\n";
-                        cout << "New SSR: " << SSR << "\n";
-                        double deltaCost = SSR - oldSSR;
-                        layers[i].nodes[j].next[k].weight -= h;
-                        layers[i].nodes[j].next[k].gradient = deltaCost / h;
-                    }
-                }
-                layers[i].nodes[j].bias += h;
-                clean(0);
+                clean();
+                setInputFromVector(trainingData.first[j]);
+                setExpected({trainingData.second[j]});
                 passValues();
                 getSSR();
-                double deltaCost = SSR - oldSSR;
-                layers[i].nodes[j].bias -= h;
-                layers[i].nodes[j].biasGradient = deltaCost / h;
+                double stepSize = 0.0;
+                double dSSR_dn7 = 2*(layers.back().nodes[0].value - expected[0]);
+                double dn7_du7 = u.dsigmoid(layers.back().nodes[0].unactivatedValue);
+                //layer 2 bias
+                double dSSR_dBias = dSSR_dn7 * dn7_du7;
+                stepSize = dSSR_dBias * learningRate;
+                layers.back().nodes[0].bias += stepSize;
+
+                //layer 1 -> layer 2 weights
+                double dSSR_dWX7[4];
+                double du7_dWX7[4];
+                
+                for(int i = 0; i < 4; i++)
+                {
+                    du7_dWX7[i] = layers[1].nodes[i].value;
+                    dSSR_dWX7[i] = dSSR_dn7 * dn7_du7 * du7_dWX7[i];
+                    stepSize = dSSR_dWX7[i] * learningRate;
+                    layers[1].nodes[i].next[0].weight += stepSize;
+                }
+
+                //layer 1 bias
                 
             }
+
         }
+
         
-    }
 
 
-
-    void backPropagate(pair<vector<double>, vector<double>> trainingData, int epochs, double learningRate)
-    {
-        //passValues();
+        /* //passValues();
         //getSSR();
         //getCosts
         for(int i = 0; i < epochs; i++)
@@ -460,17 +458,8 @@ public:
                 clearSSR();
             }
             
-        }
-        
-
-        
-        
-        
-
-
-
-
-        
+        } */
+    
         /* double dSSR_dBias = dSSR;
         double stepSize = dSSR_dBias * learningRate;
         layers.back().nodes[0].bias += stepSize;
