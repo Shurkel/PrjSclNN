@@ -182,11 +182,12 @@ public:
 
     void printCosts()
     {
-        cout << "\n[+]Costs: ";
+        cout << MAGENTA << "\n    [+]Costs: ";
         for (int i = 0; i < costs.size(); i++)
         {
             cout << costs[i] << " ";
         }
+        cout << RESET;
         cout.flush();
     }
     
@@ -392,7 +393,7 @@ public:
 
     void printSSR()
     {
-        cout << "\n[+]SSR: " << SSR;
+        cout << MAGENTA << "\n    [+]SSR: " << SSR << RESET;
         cout.flush();}
 
     void testNet(pair<vector< pair<double, double>>,vector<double>> trainingData, bool brief)
@@ -411,16 +412,25 @@ public:
             if(!brief)
             {
                 en
+                tab 
                 cout << "//// ";
+                tab
                 printInput();
+                tab
                 printExpected();
+                tab
                 printActualOutput();
+                tab
                 printSSR();
             }
             
         }
         if(brief)
+        {
+            tab
             printSSR();
+        }
+            
         clean();
         clearSSR();
     }
@@ -469,16 +479,18 @@ public:
                 //X = (1 2), Y = (3 4 5 6) dSSR/dWXY     
                 for(int i = 0; i < 4; i++)
                 {
-                    //x = 1
                     dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue) * layers[0].nodes[1].value;
-                    stepSize = dSSR_dWXY[i] * learningRate;
-                    layers[0].nodes[0].next[i].weight -= stepSize;
-                    
-                    //x = 2
-                    dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue) * layers[0].nodes[2].value;
                     stepSize = dSSR_dWXY[i] * learningRate;
                     layers[0].nodes[1].next[i].weight -= stepSize;
                 }
+                for(int i = 0; i < 4; i++)
+                {
+                    //x = 1
+                    dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue) * layers[0].nodes[0].value;
+                    stepSize = dSSR_dWXY[i] * learningRate;
+                    layers[0].nodes[0].next[i].weight -= stepSize;
+                }
+                
                 
 
             }

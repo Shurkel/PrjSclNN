@@ -25,7 +25,7 @@ void runDemo1(string outputfile)
     softmax - 2
     */
 
-    
+    // ! * OUTDATED *
     vector<vector<double>> inputs = {{1, 1}, {1, 0}, {0, 1}, {0, 0}};
     vector<vector<double>> outputs = {{0}, {1}, {1}, {0}};
     
