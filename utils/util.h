@@ -56,4 +56,9 @@ public:
         double f = (double)rand() / RAND_MAX;
         return fMin + f * (fMax - fMin);
     }
+    
+    double normalize(double value, double minVal, double maxVal) {
+        return (value - minVal) / (maxVal - minVal);
+    }
+
 } u;

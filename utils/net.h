@@ -395,12 +395,39 @@ public:
         cout << "\n[+]SSR: " << SSR;
         cout.flush();}
 
-    
-
+    void testNet(pair<vector< pair<double, double>>,vector<double>> trainingData, bool brief)
+    {
+        clearSSR();
+        
+        //go trough all the training data and calculate the SSR
+        for(int i = 0; i < trainingData.first.size(); i++)
+        {
+            
+            clean();
+            setInputFromVector(trainingData.first[i]);
+            setExpected({trainingData.second[i]});
+            passValues();
+            getSSR();
+            if(!brief)
+            {
+                en
+                cout << "//// ";
+                printInput();
+                printExpected();
+                printActualOutput();
+                printSSR();
+            }
+            
+        }
+        if(brief)
+            printSSR();
+        clean();
+        clearSSR();
+    }
 
     void backPropagate(pair<vector< pair<double, double>>,vector<double>> trainingData, int epochs, double learningRate)
     {
-
+        
         for(int i = 0; i < epochs; i++)
         {
             clearSSR();
@@ -417,22 +444,43 @@ public:
                 //layer 2 bias
                 double dSSR_dBias = dSSR_dn7 * dn7_du7;
                 stepSize = dSSR_dBias * learningRate;
-                layers.back().nodes[0].bias += stepSize;
+                layers.back().nodes[0].bias -= stepSize;
 
                 //layer 1 -> layer 2 weights
-                double dSSR_dWX7[4];
+                double dSSR_dWXY[4];//Y = 7, X = (3 4 5 6)
                 double du7_dWX7[4];
                 
                 for(int i = 0; i < 4; i++)
                 {
                     du7_dWX7[i] = layers[1].nodes[i].value;
-                    dSSR_dWX7[i] = dSSR_dn7 * dn7_du7 * du7_dWX7[i];
-                    stepSize = dSSR_dWX7[i] * learningRate;
-                    layers[1].nodes[i].next[0].weight += stepSize;
+                    dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * du7_dWX7[i];
+                    stepSize = dSSR_dWXY[i] * learningRate;
+                    layers[1].nodes[i].next[0].weight -= stepSize;
                 }
 
                 //layer 1 bias
+                for(int i = 0 ; i < 4; i++)
+                {
+                    dSSR_dBias = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue);
+                    stepSize = dSSR_dBias * learningRate;
+                    layers[1].nodes[i].bias -= stepSize;
+                }
+                //layer 0 -> layer 1 weights
+                //X = (1 2), Y = (3 4 5 6) dSSR/dWXY     
+                for(int i = 0; i < 4; i++)
+                {
+                    //x = 1
+                    dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue) * layers[0].nodes[1].value;
+                    stepSize = dSSR_dWXY[i] * learningRate;
+                    layers[0].nodes[0].next[i].weight -= stepSize;
+                    
+                    //x = 2
+                    dSSR_dWXY[i] = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue) * layers[0].nodes[2].value;
+                    stepSize = dSSR_dWXY[i] * learningRate;
+                    layers[0].nodes[1].next[i].weight -= stepSize;
+                }
                 
+
             }
 
         }
