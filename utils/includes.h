@@ -13,13 +13,14 @@ using namespace std;
 
 
 
-ofstream l("../logs/logs.out");
+ofstream l("./../logs/logs.out");
 void setLogFile(const string& filename) {
+    
     if (l.is_open()) {
         l.close();
     }
     string fullPath = "./../logs/" + filename;
-    l.open(fullPath, std::ios::trunc);
+    l.open(fullPath, std::ios::app);
     if (!l) {
         std::cerr << "Failed to open log file: " << fullPath << '\n';
         exit(1);

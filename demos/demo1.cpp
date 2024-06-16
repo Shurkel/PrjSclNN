@@ -32,18 +32,14 @@ void runDemo1(string outputfile)
     //t.start();
 
     
-    net n({2, 3, 1});
-    
-    n.setActivateAll(1);
+    net n({2, 4, 1});
     
     
-    n.connectLayers();
-    n.setWeightAll(1.0);
-    //check weights
+
     n.printNodeDetails(0, 0);
     //n.printNodeDetails(1, 0);
     
-    
+    n.clean();
 
     
 

@@ -1,15 +1,16 @@
 #include "../demos/demo2.cpp"
-#include <thread>
+
+
 
 using namespace std;
 
 int main()
 {
+    ofstream l;
     cls
-    string outputfile = "demo2_log.out";
+    string outputfile = "logs.out";
     setLogFile(outputfile);
-    l<<"[+] Starting demo\n";
-    l.flush();
+    
     cout << MAGENTA << "\n[*]WILKOMMEN ZUM" << BOLDCYAN << " ANDREINET"
     << MAGENTA << "\n[+]Letztes Update:" <<BOLDWHITE << " 02.06.2024"
     << MAGENTA << "\n[+]Version:" << BOLDWHITE << " 1.0.0"

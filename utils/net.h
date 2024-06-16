@@ -3,14 +3,13 @@
 class net
 {
 public:
-    vector<Layer> layers;
-    vector<double> expected;
-    vector<double> costs;
-    bool log = true;
-    double cost = 0.0;
+    vector<Layer> layers; // die Schichten des Netzes
+    vector<double> expected; // die erwarteten Ausgaben
+    vector<double> costs; // die Kosten
+    bool log = true; // logging aktivieren
     //sum of squared residuals
     double SSR = 0.0;
-    //derivative of SSR
+    //derivate von SSR
     double dSSR = 0.0;
 
 
@@ -430,7 +429,6 @@ public:
             tab
             printSSR();
         }
-            
         clean();
         clearSSR();
     }
@@ -471,6 +469,7 @@ public:
                 //layer 1 bias
                 for(int i = 0 ; i < 4; i++)
                 {
+
                     dSSR_dBias = dSSR_dn7 * dn7_du7 * weight(1, i, 2, 0) * u.dsigmoid(layers[1].nodes[i].unactivatedValue);
                     stepSize = dSSR_dBias * learningRate;
                     layers[1].nodes[i].bias -= stepSize;
@@ -500,42 +499,6 @@ public:
         
 
 
-        /* //passValues();
-        //getSSR();
-        //getCosts
-        for(int i = 0; i < epochs; i++)
-        {
-            for(int j = 0; j < trainingData.first.size(); j++)
-            {
-                
-                
-
-                //https://www.youtube.com/watch?v=hfMk-kjRv4c&t=1397s&ab_channel=SebastianLague
-                getGradients(trainingData, learningRate, j);
-                applyGradient(learningRate);
-                //printSSR();
-                clearCosts();
-                clearSSR();
-            }
-            
-        } */
-    
-        /* double dSSR_dBias = dSSR;
-        double stepSize = dSSR_dBias * learningRate;
-        layers.back().nodes[0].bias += stepSize;
-
-        double dSSR_dWeight = dSSR * layers[1].nodes[0].value;
-        stepSize = dSSR_dWeight * learningRate;
-        layers[1].nodes[0].next[0].weight += stepSize;
-
-        cout << "\nSSR: " << SSR;
-        cout << "\nBias " << layers.back().nodes[0].bias;
-        cout << "\nWeight " << layers[1].nodes[0].next[0].weight;
-        //cout << "slope: " << slope << "\n";
-        //cout << "stepSize: " << stepSize << "\n";
-        //cout << "Old bias: " << layers.back().nodes[0].bias << "\n";
-        
-        //cout << "New bias: " << layers.back().nodes[0].bias << "\n"; */
         
     }
 

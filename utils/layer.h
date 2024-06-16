@@ -24,7 +24,6 @@ public:
             nodes[i].clean();
         }
     }
-
     void clean(int i)
     {
         if(layerId == 0)
@@ -34,7 +33,6 @@ public:
             nodes[i].clean();
         }
     }
-
 
     void setValueFromVector(vector<double> values)
     {
@@ -178,13 +176,5 @@ public:
         return node->next[nextNode->getId()].weight;
     }
     
-    double gradient(int nodeID, int nextNodeID)
-    {
-        return nodes[nodeID].next[nextNodeID].gradient;
-    }
-    double setgradient(int nodeID, int nextNodeID, double val)
-    {
-        nodes[nodeID].next[nextNodeID].gradient = val;
-    }
     
 };

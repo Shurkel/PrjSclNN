@@ -1,5 +1,5 @@
 #include "../utils/andreinet.h"
-using namespace std;
+
 
 net n({2, 4, 1});
 
@@ -23,6 +23,15 @@ void saveWeights()
             }
             wo << "\n";
         }
+    }
+    //biases
+    for (int i = 0; i < n.layers.size(); i++)
+    {
+        for (int j = 0; j < n.layers[i].nodes.size(); j++)
+        {
+            wo << n.layers[i].nodes[j].bias << " ";
+        }
+        wo << "\n";
     }
     if (wo.fail()) {
         cout << "Error writing to save file!" << endl;
@@ -52,6 +61,19 @@ void importWeights()
                     wi.close();
                     return;
                 }
+            }
+        }
+    }
+    //biases
+    for(int i = 0; i < n.layers.size(); i++)
+    {
+        for(int j = 0; j < n.layers[i].nodes.size(); j++)
+        {
+            if(!(wi >> n.layers[i].nodes[j].bias))
+            {
+                cout << "Error reading bias for layer " << i << ", node " << j << endl;
+                wi.close();
+                return;
             }
         }
     }
@@ -89,7 +111,7 @@ void runDemo2(string outputfile)
     2 - Softmax
     */
     t.start(); // Timer starten
-
+    
     // Aktivierungsfunktionen für die layeren festlegen
     n.noActivate(0);     // Eingangs-layer deaktivieren
     n.setActivate(1, 1); // ReLU-Aktivierung für die versteckte Layer festlegen
@@ -99,7 +121,7 @@ void runDemo2(string outputfile)
     // Gewichte und Bias initialisieren
     n.setWeightAll(1); // Alle Gewichte auf 1 setzen (default))
     n.setBiasAll(0);   //  Bias auf 0 setzen (default)
-
+    
     // Eingabemerkmale: [Studierte Stunden, Schlaf (Stunden)]
     vector<pair<double, double>> input = {
         // Durchfallwerte
@@ -194,6 +216,8 @@ void runDemo2(string outputfile)
         {
             cls
             cout << BOLDRED << "\n[+]BEENDEN" << RESET;
+            l << "[+]BEENDEN\n";
+            l.flush();
             break;
         }
         else if (choice == 1)
@@ -204,6 +228,7 @@ void runDemo2(string outputfile)
             cout << YELLOW << "\n[ENTER]" << RESET << " um fortzufahren";
             cin.get();
             cin.get();
+            
             cls
         }
         else if (choice == 2)

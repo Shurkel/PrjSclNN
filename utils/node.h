@@ -11,13 +11,11 @@ public:
     {
         Node *node;
         double weight;
-        double gradient = 0;
     };
+    vector<nextNodes> next;//<node, weight>
     double value;
     double unactivatedValue;
     double bias = 0.0;
-    double biasGradient = 0.0;
-    
     int id = 0;
     int layerId = 0;
     bool log = false;
@@ -25,28 +23,59 @@ public:
     int activationFunction = 0;
     
 
-    vector<nextNodes> next;//<node, weight>
+    
     
     
 
-    Node(double val, double b = 0.0)
+    Node(double val = 0.0, double b = 0.0)
     {
-        
-
         value = val;
         bias = b;
-
     }
 
     //////////////////////////
     
     // * *NODE FUNCTIONS
+    double getValue()
+    {
+        return value;
+    }
+    void setValue(double val)
+    {
+        value = val;
+        unactivatedValue = val;
+        if(log)
+            l << "[+] Node " << id << " value set to " << val << "\n";
+    }
     
+    int getId()
+    {
+        return id;
+    }
+    void setId(int id)
+    {
+        this->id = id;
+        if(log)
+            l << "[+] Node " << id << " ID set to " << id << "\n";
+
+    }
+
+    double getBias()
+    {
+        return bias;
+    }
+    void setBias(double b)
+    {
+        bias = b;
+        if(log)
+            l << "[+] Node " << id << " bias set to " << b << "\n";
+    }
+
     void clean()
     {
         value = 0;
-        bias = 0;
     }
+    
     double weight(int nextNodeID)
     {
         return next[nextNodeID].weight;
@@ -61,6 +90,18 @@ public:
             }
         }
         return 0;
+    }
+    void randomiseWeights()
+    {
+        for (int i = 0; i < next.size(); i++)
+        {
+            next[i].weight = u.randomDouble(-1, 1);
+        }
+    }
+
+    int getActivate()
+    {
+        return activationFunction;
     }
     void setActivate(int function)
     {
@@ -94,6 +135,7 @@ public:
             l << "[-] Node " << id << " deactivated\n";
         }
     }
+    
     void logging()
     {
         if(log)
@@ -108,15 +150,7 @@ public:
             log = true;
         }            
     }
-    void connect(Node *nextNode, double w=1.0)
-    {
-        next.push_back({nextNode, w});
-        //log
-        if(log)
-        {
-            l << "[+] Node " << id << " connected to node " << nextNode->id << " with weight " << w << "\n";
-        }
-    }
+    
     void setWeight(int nextNodeID, int nextLayerID, double w)
     {
         next[nextNodeID].weight = w;
@@ -134,60 +168,11 @@ public:
                 l << "[+] Weight set to " << w << " for node " << next[i].node->id << " from node " << id << "\n";
         }
     }
-    void disconnect(Node *nextNode)
+    double getWeight(int nextNodeID)
     {
-        for (int i = 0; i < next.size(); i++)
-        {
-            if (next[i].node == nextNode)
-            {
-                next.erase(next.begin() + i);
-                if(log)
-                    l << "[-] Node " << id << " disconnected from node " << nextNode->id << "\n";
-            }
-        }
-    }
-    void disconnectAll()
-    {
-        next.clear();
-        if(log)
-            l << "[-] Cleared all connections for node " << id << "\n";
-    }
-    int getId()
-    {
-        return id;
-    }
-    double getValue()
-    {
-        return value;
-    }
-    
-
-    void setValue(double val)
-    {
-        value = val;
-        unactivatedValue = val;
-        if(log)
-            l << "[+] Node " << id << " value set to " << val << "\n";
-    }
-    
-    void setBias(double b)
-    {
-        bias = b;
-        if(log)
-            l << "[+] Node " << id << " bias set to " << b << "\n";
-    }
-    void setId(int id)
-    {
-        this->id = id;
-         if(log)
-            l << "[+] Node " << id << " ID set to " << id << "\n";
-
+        return next[nextNodeID].weight;
     }
 
-    vector<nextNodes> getNextNodes()
-    {
-        return next;
-    }
     void passValues()
     {
         value += bias;
@@ -211,6 +196,44 @@ public:
         
 
     }
+    
+    void connect(Node *nextNode, double w=1.0)
+    {
+        next.push_back({nextNode, w});
+        //log
+        if(log)
+        {
+            l << "[+] Node " << id << " connected to node " << nextNode->id << " with weight " << w << "\n";
+        }
+    }
+    void disconnect(Node *nextNode)
+    {
+        for (int i = 0; i < next.size(); i++)
+        {
+            if (next[i].node == nextNode)
+            {
+                next.erase(next.begin() + i);
+                if(log)
+                    l << "[-] Node " << id << " disconnected from node " << nextNode->id << "\n";
+            }
+        }
+    }
+    void disconnectAll()
+    {
+        next.clear();
+        if(log)
+            l << "[-] Cleared all connections for node " << id << "\n";
+    }
+    
+    vector<nextNodes> getNextNodes()
+    {
+        return next;
+    }
+    void setNextNodes(vector<nextNodes> next)
+    {
+        this->next = next;
+    }
+    
     void printNextNodes()
     {
         TextTable t('-', '|', '+');
@@ -229,13 +252,6 @@ public:
         t.setAlignment(2, TextTable::Alignment::RIGHT);
         cout << t;
         en
-    }
-    void randomiseWeights()
-    {
-        for (int i = 0; i < next.size(); i++)
-        {
-            next[i].weight = u.randomDouble(-1, 1);
-        }
     }
     void printDetails()
     {
@@ -264,6 +280,4 @@ public:
         cout.flush();
     }
 
-
-    
 };

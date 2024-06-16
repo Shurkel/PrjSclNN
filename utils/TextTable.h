@@ -84,7 +84,7 @@ public:
 
   int correctDistance(const std::string& string_to_correct) const {
     return static_cast<int>(string_to_correct.size()) -
-           static_cast<int>(glyphLength(string_to_correct));
+          static_cast<int>(glyphLength(string_to_correct));
   };
 
 private:
