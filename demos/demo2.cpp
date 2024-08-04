@@ -9,36 +9,37 @@ void saveWeights()
 {
     ofstream wo("save.txt");
     if (!wo.is_open()) {
-        cout << "Error opening save file!" << endl;
-        return;
+        cerr << "Error opening save file!" << endl;
+        throw runtime_error("Failed to open save file.");
     }
 
-    for (int i = 0; i < n.layers.size(); i++)
-    {
-        for (int j = 0; j < n.layers[i].nodes.size(); j++)
-        {
-            for (int k = 0; k < n.layers[i].nodes[j].next.size(); k++)
-            {
-                wo << n.layers[i].nodes[j].next[k].weight << " ";
+    try {
+        // Write weights
+        for (int i = 0; i < n.layers.size(); i++) {
+            for (int j = 0; j < n.layers[i].nodes.size(); j++) {
+                for (int k = 0; k < n.layers[i].nodes[j].next.size(); k++) {
+                    wo << n.layers[i].nodes[j].next[k].weight << " ";
+                }
+                wo << "\n";
+            }
+        }
+        // Write biases
+        for (int i = 0; i < n.layers.size(); i++) {
+            for (int j = 0; j < n.layers[i].nodes.size(); j++) {
+                wo << n.layers[i].nodes[j].bias << " ";
             }
             wo << "\n";
         }
+    } catch (const ios_base::failure& e) {
+        cerr << "Error writing to save file: " << e.what() << endl;
+        wo.close();
+        throw;
     }
-    //biases
-    for (int i = 0; i < n.layers.size(); i++)
-    {
-        for (int j = 0; j < n.layers[i].nodes.size(); j++)
-        {
-            wo << n.layers[i].nodes[j].bias << " ";
-        }
-        wo << "\n";
-    }
-    if (wo.fail()) {
-        cout << "Error writing to save file!" << endl;
-    }
+
     wo.close();
     if (wo.fail()) {
-        cout << "Error closing the save file!" << endl;
+        cerr << "Error closing the save file!" << endl;
+        throw runtime_error("Failed to close save file properly.");
     }
 }
 
@@ -88,16 +89,15 @@ void importWeights()
 
 void displayMenu()
 {
-    cout << BOLDBLUE << "[?] WAS MOCHTEN SIE TUN?\n"
-        << YELLOW <<"    [1]Netz probieren"
-        << RED << "(moglich untrainiert)"
-        << YELLOW << "\n    [2]Netz trainieren"
-        << "\n    [3]Gewichte speichern"
-        << "\n    [4]Gewichte importieren"
-        << "\n    [5]Netz selbst testen"
-        << "\n    [6]Grafik erstellen"
-        << "\n    [99]Beenden\n>>>"
-        << RESET;
+    cout << BOLDBLUE << "\n[?] WAS MOCHTEN SIE TUN?\n" << RESET
+         << YELLOW << "    [1] Netz probieren " << RED << "(moglich untrainiert)" << RESET << "\n"
+         << YELLOW << "    [2] Netz trainieren\n"
+         << "    [3] Gewichte speichern\n"
+         << "    [4] Gewichte importieren\n"
+         << "    [5] Netz selbst testen\n"
+         << "    [6] Grafik erstellen\n"
+         << RED << "    [99] Beenden\n" << RESET
+         << YELLOW << ">>> " << RESET;
 }
 
 void runDemo2(string outputfile)
@@ -319,11 +319,42 @@ void runDemo2(string outputfile)
             cout << BOLDCYAN << "\n[+]GRAFIK ERSTELLEN" << RESET;
             for (int i = 0; i < input.size(); i++)
             {
+                //all combinations with values from 0 to 12
+                for(int j = 0; j < 12; j+=2)
+                {
+                    for(int k = 0; k < 12; k+=2)
+                    {
+                        n.clean();
+                        n.clearSSR();
+                        n.setInputFromVector({j, k});
+                        n.passValues();
+                        double value = n.layers.back().nodes.back().value;
+                        
+                        en
+                        if(value > 0.5)
+                        {
+                            
+                            py << j << "," << k << ",1";
+                            cout << RESET << GREEN << "    [*]Testwert: " << value;
+                            py << ",green\n";
+                        }
+                        else
+                        {
+                            py << j << "," << k << ",0";
+                            cout << RESET << RED << "    [*]Testwert: " << value;
+                            py << ",red\n";
+                        }
+                    }
+                }
+                /*
+                
                 py << input[i].first << "," << input[i].second << "," << expected[i];
                 if (expected[i] == 1)
                     py << ",green\n";
                 else
                     py << ",red\n";
+                */
+                    
             }
             py.close();
             // saveWeights();

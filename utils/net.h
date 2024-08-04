@@ -433,6 +433,17 @@ public:
         clearSSR();
     }
 
+
+    void useDefaults()
+    {
+        noActivate(0);    
+        setActivate(1, 1); 
+        setActivate(2, 1); 
+        connectLayers();  
+        setWeightAll(1); 
+        setBiasAll(0);  
+    }
+
     void backPropagate(pair<vector< pair<double, double>>,vector<double>> trainingData, int epochs, double learningRate)
     {
         

@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Read points from file
 def read_points_from_file(filename):
@@ -12,13 +11,23 @@ def read_points_from_file(filename):
 
 # Plot points
 def plot_points(points):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    fig, ax = plt.subplots()
     for study_hours, sleep_hours, pass_fail, color in points:
-        ax.scatter(study_hours, sleep_hours, pass_fail, c=color)
+        if pass_fail == 1:
+            marker = 'o'
+            label = 'Pass'
+        else:
+            marker = 'x'
+            label = 'Fail'
+        ax.scatter(study_hours, sleep_hours, c=color, marker=marker, label=label)
+    
+    # Add legend
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+    
     ax.set_xlabel('Study Hours')
     ax.set_ylabel('Sleep Hours')
-    ax.set_zlabel('Pass/Fail')
     ax.set_title('Student Performance')
     plt.show()
 

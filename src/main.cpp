@@ -1,4 +1,4 @@
-#include "../demos/demo2.cpp"
+#include "../demos/demo3.cpp"
 
 
 
@@ -12,13 +12,13 @@ int main()
     setLogFile(outputfile);
     
     cout << MAGENTA << "\n[*]WILKOMMEN ZUM" << BOLDCYAN << " ANDREINET"
-    << MAGENTA << "\n[+]Letztes Update:" <<BOLDWHITE << " 02.06.2024"
-    << MAGENTA << "\n[+]Version:" << BOLDWHITE << " 1.0.0"
+    << MAGENTA << "\n[+]Letztes Update:" <<BOLDWHITE << " 04.08.2024"
+    << MAGENTA << "\n[+]Version:" << BOLDWHITE << " 1.0.1"
     << MAGENTA << "\n[+]Siehe Github fur mehrere Informationen:" << BOLDWHITE << " https://github.com/Shurkel/PrjSclNN"
     << YELLOW << "\n[ENTER]" << RESET << " um fortzufahren";
     cin.get();
     cls
-    runDemo2(outputfile); 
+    runDemo3(outputfile); 
 
     
 }
