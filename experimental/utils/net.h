@@ -1,12 +1,12 @@
 #include "layer.h"
-// net
+
 class net
 {
 public:
-    vector<Layer> layers; // die Schichten des Netzes
-    vector<double> expected; // die erwarteten Ausgaben
-    vector<double> costs; // die Kosten
-    bool log = true; // logging aktivieren
+    vector<Layer> layers;
+    vector<double> expected;
+    vector<double> costs; 
+    
     //sum of squared residuals
     double SSR = 0.0;
     //derivate von SSR
@@ -15,40 +15,15 @@ public:
 
     net(vector<int> layerSizes)
     {
-        if(log)
-        {
-            l << "[+]Net created\n";
-            l << "[+]Creating layers\n";
-        }
         
         for (int i = 0; i < layerSizes.size(); i++)
         {
-
-            
             layers.push_back(Layer(layerSizes[i])); // Create the layer first
             layers[i].setIdAll(i);     
-            if(log)
-            {
-                l << "|    [+]Layer created";             // Then set its ID
-                l << " at id " << layers[i].layerId;
-                l << " with size " << layers[i].nodes.size() << "\n";
-            }
-            
-            
         }
-        
+        connectLayers();
         clearCosts();
     }
-
-    // layer functions
-    void logNet()
-    {
-        if(log)
-            log = false;
-        else
-            log = true;
-    }
-    
     void clean()
     {
         for(int i = 0; i < layers.size(); i++)
@@ -64,25 +39,6 @@ public:
             if(layers[i].layerId == 0)
                 continue;
             layers[i].clean();
-        }
-    }
-
-    void loggingGlobal()
-    {
-        for (int i = 0; i < layers.size(); i++)
-        {
-            for (int j = 0; j < layers[i].nodes.size(); j++)
-            {
-                layers[i].nodes[j].logging();
-            }
-        }
-    }
-    
-    void loggingLayer(int layerId)
-    {
-        for (int i = 0; i < layers[layerId].nodes.size(); i++)
-        {
-            layers[layerId].nodes[i].logging();
         }
     }
     
@@ -112,22 +68,11 @@ public:
         {
             cerr << (char)218 << "[x] Error: Costs vector is empty.\n"
             << (char)192 << "Please use setExpected() before calling getCosts().\n";
-
-            if (l.is_open())
-            {
-                l << "[x] Error: Costs vector is empty.\n"
-                << ">>Please use setExpected() before calling getCosts()\n";
-                l.flush();
-            }
             return;
         }
         for(int i = 0; i < layers.back().nodes.size(); i++)
         {
             costs.push_back(layers.back().nodes[i].value - expected[i]);
-            
-            /* cout << "costs.push_back ( layers.back().nodes[i].value - expected[i] ) " << "\n";
-            cout << "layers.back().nodes[i].value: " << layers.back().nodes[i].value << "\n";
-            cout << "expected[i]: " << expected[i] << "\n"; */
         }
         
     }
@@ -140,10 +85,6 @@ public:
         {
             SSR += pow(costs[i], 2);
             dSSR += -2 * costs[i];
-            
-
-            //cout << "SSR += pow(costs[i], 2) "<< "\n";
-            //cout << "costs[i]: " << costs[i] << "\n";
         }
         
     }
@@ -157,16 +98,6 @@ public:
     {
         SSR = 0.0;
         dSSR = 0.0;
-    }
-
-    void logCosts()
-    {
-        l << "\n\n[+]Costs: ";
-        for (int i = 0; i < costs.size(); i++)
-        {
-            l << costs[i] << " ";
-        }
-        len
     }
     
     void printInput()
@@ -305,14 +236,6 @@ public:
         }
     }
 
-    void logLayers()
-    {
-        for (int i = 0; i < layers.size(); i++)
-        {
-            layers[i].logLayer();
-        }
-    }
-    // node functions
     void setWeight(int layerID, int nodeID, int nextLayerID, int nextNodeID, double w)
     {
         layers[layerID].nodes[nodeID].setWeight(nextNodeID, nextLayerID, w);
@@ -328,7 +251,6 @@ public:
         layers[layerId].nodes[nodeId].printNextNodes();
     }
 
-    // net functions
     void connectLayers()
     {
         for (int i = 0; i < layers.size() - 1; i++)
@@ -336,19 +258,17 @@ public:
             layers[i].connect(&layers[i + 1]);
         }
     }
-    
+    void disconnectLayers()
+    {
+        for (int i = 0; i < layers.size() - 1; i++)
+        {
+            layers[i].disconnect(&layers[i + 1]);
+        }
+    }
     void passValues()
     {
         for (int i = 0; i < layers.size(); i++)
             layers[i].passValues();
-    }
-
-    void updateGradient()
-    {
-        passValues();
-
-        //update output layer gradient
-        
     }
 
     void setWeightAll(double w)

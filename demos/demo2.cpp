@@ -100,7 +100,7 @@ void displayMenu()
          << YELLOW << ">>> " << RESET;
 }
 
-void runDemo2(string outputfile)
+void runDemo(string outputfile)
 {
     cout << BOLDGREEN << "\n[+]INIT DEMO2" << RESET;
     
@@ -244,7 +244,18 @@ void runDemo2(string outputfile)
             if(learningRate == -1)
                 continue;
             cout << RESET;
+
+            //timer starten
+            chrono::time_point<chrono::high_resolution_clock> startTime, endTime;
+            chrono::duration<float> duration;
+            startTime = chrono::high_resolution_clock::now();
+
             n.backPropagate(trainingData, epochs, learningRate);
+
+            endTime = chrono::high_resolution_clock::now();
+            duration = endTime - startTime;
+            cout << "Time: " << duration.count() << "s" << endl;
+            
             cout << BOLDCYAN << "\n[+]NACH DEM TRAINING";
             n.testNet(trainingData, true);
             n.printCosts();
